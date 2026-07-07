@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SearchGateway.Data;
 using SearchGateway.Models;
@@ -48,18 +49,21 @@ public static class SearchRoutes
                     return Results.Problem($"Bulk sync failed: {bulkResponse.ServerError?.Error?.Reason ?? bulkResponse.OriginalException?.Message}");
                 }
 
-                return Results.Ok(new
+                return Results.Ok(new SyncResponse
                 {
-                    message = $"Successfully synchronized {movies.Count} denormalized movies to OpenSearch.",
-                    took_ms = bulkResponse.Took,
-                    has_errors = bulkResponse.Errors
+                    Message = $"Successfully synchronized {movies.Count} denormalized movies to OpenSearch.",
+                    TookMs = bulkResponse.Took,
+                    HasErrors = bulkResponse.Errors
                 });
             }
             catch (Exception ex)
             {
                 return Results.Problem($"Sync failed: {ex.Message}");
             }
-        });
+        })
+        .Produces<SyncResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Query OpenSearch across denormalized properties (Title, Plot, Director, Actors)
         group.MapGet("/opensearch", async (string q, OpenSearchService openSearchService) =>
@@ -77,29 +81,33 @@ public static class SearchRoutes
                     return Results.Problem($"Search query failed: {searchResponse.ServerError?.Error?.Reason}");
                 }
 
-                var results = searchResponse.Hits.Select(hit => new
+                var results = searchResponse.Hits.Select(hit => new MovieSearchResultItem
                 {
-                    score = hit.Score,
-                    id = hit.Source.Id,
-                    title = hit.Source.Title,
-                    plot = hit.Source.Plot,
-                    release_year = hit.Source.ReleaseYear,
-                    rating = hit.Source.Rating,
-                    director_name = hit.Source.DirectorName,
-                    genres = hit.Source.Genres,
-                    actor_names = hit.Source.ActorNames
+                    Score = hit.Score,
+                    Id = hit.Source.Id,
+                    Title = hit.Source.Title,
+                    Plot = hit.Source.Plot,
+                    ReleaseYear = hit.Source.ReleaseYear,
+                    Rating = hit.Source.Rating,
+                    DirectorName = hit.Source.DirectorName,
+                    Genres = hit.Source.Genres,
+                    ActorNames = hit.Source.ActorNames
                 });
 
-                return Results.Ok(new
+                return Results.Ok(new OpenSearchQueryResponse
                 {
-                    total = searchResponse.Total,
-                    results
+                    Total = searchResponse.Total,
+                    Results = results
                 });
             }
             catch (Exception ex)
             {
                 return Results.Problem($"Search failed: {ex.Message}");
             }
-        });
+        })
+        .Produces<OpenSearchQueryResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }
+

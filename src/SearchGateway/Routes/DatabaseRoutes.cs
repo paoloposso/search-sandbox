@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SearchGateway.Data;
+using SearchGateway.Models;
 using SearchGateway.Services;
 
 namespace SearchGateway.Routes;
@@ -21,7 +23,8 @@ public static class DatabaseRoutes
                 .ToListAsync();
 
             return Results.Ok(movies);
-        });
+        })
+        .Produces<IEnumerable<Movie>>(StatusCodes.Status200OK);
 
         // Seed normalized movies into Postgres from JSON file
         group.MapPost("/db/seed", async (DatabaseSeeder seeder) =>
@@ -30,7 +33,9 @@ public static class DatabaseRoutes
             return result.Success
                 ? Results.Ok(result)
                 : Results.Problem(result.ErrorMessage);
-        });
+        })
+        .Produces<SeedingResult>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Clear DB
         group.MapPost("/db/clear", async (AppDbContext dbContext) =>
@@ -42,7 +47,8 @@ public static class DatabaseRoutes
             dbContext.Genres.RemoveRange(dbContext.Genres);
             await dbContext.SaveChangesAsync();
             return Results.Ok(new { message = "Normalized database cleared." });
-        });
+        })
+        .Produces(StatusCodes.Status200OK);
     }
 }
 

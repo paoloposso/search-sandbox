@@ -531,11 +531,56 @@ In a web application, creating and tearing down database connections for every r
     ```
     This significantly increases throughput by cutting context instantiation and database connection handshake overhead.
 
+---
 
+## 11. What is OpenAPI & How to Use It
 
+### A. What is OpenAPI?
+The **OpenAPI Specification (OAS)** is a standard, language-agnostic description interface for RESTful APIs. It allows developers and machine parsers to understand all capabilities of an API (its endpoints, query parameters, request bodies, and response formats) without looking at the source code.
 
+In .NET Minimal APIs, the schema metadata is automatically generated directly from your C# route registrations.
 
+---
 
+### B. How it is set up in C#
+In our [Program.cs](file:///Users/paoloposso/git/vespa-opensearch-poc/src/SearchGateway/Program.cs), OpenAPI is configured in two steps:
+
+1.  **Register Generator Services**:
+    ```csharp
+    builder.Services.AddOpenApi(); // Registers Microsoft's native OpenAPI metadata generator
+    ```
+2.  **Expose the Endpoint (Pipeline)**:
+    ```csharp
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi(); // Exposes the OpenAPI JSON document endpoint
+    }
+    ```
+
+---
+
+### C. How to view and query the specification file
+When you run the application in Development mode, .NET automatically hosts a JSON spec file containing your complete API map.
+
+You can query this document by hitting:
+```bash
+curl http://localhost:5042/openapi/v1.json
+```
+If you open this JSON file, you will see a detailed schema of every database and search endpoint, what arguments they accept, and what models they return.
+
+---
+
+### D. What can you do with this JSON file? (Usage Scenarios)
+
+#### 1. Interactive API Dashboards (Swagger UI, Scalar, Redoc)
+You can run tools that consume this JSON to generate beautiful, interactive web UIs where developers can browse documentation and execute test requests.
+*   **Scalar** (modern API client): Can read `/openapi/v1.json` directly.
+*   **Swagger UI**: Reads the JSON to build a traditional "Try it out" page.
+
+#### 2. Auto-Generating Client SDKs (Kiota, NSwag)
+Instead of manually writing HTTP client code (like `HttpClient` calls in C# or `fetch` calls in TypeScript), you can feed `/openapi/v1.json` into a client generator tool (like **Microsoft Kiota** or **NSwag**). 
+
+The tool will parse the OpenAPI spec and **instantly write complete client SDK code** (in TS, C#, Python, Go, etc.) for you, complete with full static typing for all endpoints and DTOs!
 
 
 
