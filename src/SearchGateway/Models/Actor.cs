@@ -13,5 +13,5 @@ public class Actor
     public required string Name { get; set; }
 
     [JsonIgnore]
-    public List<MovieActor> MovieActors { get; set; } = new();
+    public ICollection<MovieActor> MovieActors { get; set; } = [];
 }

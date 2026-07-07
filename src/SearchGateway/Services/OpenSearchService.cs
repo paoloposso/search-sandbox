@@ -20,7 +20,7 @@ public class OpenSearchService(IOpenSearchClient client)
                 .NumberOfShards(1)
                 .NumberOfReplicas(0)
             )
-            .Map<Movie>(m => m
+            .Map<MovieSearchDocument>(m => m
                 .AutoMap()
                 .Properties(p => p
                     .Number(n => n
@@ -36,6 +36,14 @@ public class OpenSearchService(IOpenSearchClient client)
                     )
                     .Text(t => t
                         .Name(f => f.Plot)
+                        .Analyzer("english")
+                    )
+                    .Text(t => t
+                        .Name(f => f.DirectorName)
+                        .Analyzer("english")
+                    )
+                    .Text(t => t
+                        .Name(f => f.ActorNames)
                         .Analyzer("english")
                     )
                     .Number(n => n
@@ -59,37 +67,37 @@ public class OpenSearchService(IOpenSearchClient client)
         }
     }
 
-    public async Task<BulkResponse> SyncMoviesAsync(List<Movie> movies)
+    public async Task<BulkResponse> SyncMoviesAsync(IEnumerable<MovieSearchDocument> documents)
     {
         await EnsureIndexExistsAsync();
 
         // Use custom bulk mapping to ensure documents are indexed under correct IDs
         var response = await client.BulkAsync(b => b
             .Index(IndexName)
-            .IndexMany(movies, (descriptor, movie) => descriptor.Id(movie.Id.ToString()))
+            .IndexMany(documents, (descriptor, doc) => descriptor.Id(doc.Id.ToString()))
         );
 
         return response;
     }
 
-    public async Task<ISearchResponse<Movie>> SearchAsync(string queryText)
+    public async Task<ISearchResponse<MovieSearchDocument>> SearchAsync(string queryText)
     {
         await EnsureIndexExistsAsync();
 
-        var response = await client.SearchAsync<Movie>(s => s
+        return await client.SearchAsync<MovieSearchDocument>(s => s
             .Index(IndexName)
             .Query(q => q
                 .MultiMatch(mm => mm
                     .Fields(f => f
                         .Field(m => m.Title, boost: 2.0)
                         .Field(m => m.Plot)
+                        .Field(m => m.DirectorName, boost: 1.5)
+                        .Field(m => m.ActorNames, boost: 1.5)
                     )
                     .Query(queryText)
                     .Fuzziness(Fuzziness.Auto)
                 )
             )
         );
-
-        return response;
     }
 }

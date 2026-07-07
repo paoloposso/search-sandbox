@@ -3,12 +3,8 @@ using SearchGateway.Models;
 
 namespace SearchGateway.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<Movie> Movies => Set<Movie>();
     public DbSet<Director> Directors => Set<Director>();
     public DbSet<Actor> Actors => Set<Actor>();
@@ -18,7 +14,7 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         // Define composite key for many-to-many MovieActor table
         modelBuilder.Entity<MovieActor>()
             .HasKey(ma => new { ma.MovieId, ma.ActorId });
@@ -37,7 +33,7 @@ public class AppDbContext : DbContext
         // Configure index for movie title
         modelBuilder.Entity<Movie>()
             .HasIndex(m => m.Title);
-            
+
         // Configure index for actor name
         modelBuilder.Entity<Actor>()
             .HasIndex(a => a.Name);
