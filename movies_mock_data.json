@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "title": "The Matrix",
+    "plot": "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers. Cyberpunk, virtual reality, and kung fu action.",
+    "release_year": 1999,
+    "rating": 8.7,
+    "genres": ["Action", "Sci-Fi"],
+    "director": "Lana Wachowski",
+    "actors": [
+      { "name": "Keanu Reeves", "character": "Neo" },
+      { "name": "Laurence Fishburne", "character": "Morpheus" },
+      { "name": "Carrie-Anne Moss", "character": "Trinity" }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Inception",
+    "plot": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O. Complex mind-bending thriller with high-stakes heist action.",
+    "release_year": 2010,
+    "rating": 8.8,
+    "genres": ["Action", "Sci-Fi", "Adventure"],
+    "director": "Christopher Nolan",
+    "actors": [
+      { "name": "Leonardo DiCaprio", "character": "Cobb" },
+      { "name": "Joseph Gordon-Levitt", "character": "Arthur" },
+      { "name": "Elliot Page", "character": "Ariadne" }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Interstellar",
+    "plot": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival. Explores deep space, relativity, gravity, and father-daughter relationship.",
+    "release_year": 2014,
+    "rating": 8.6,
+    "genres": ["Adventure", "Drama", "Sci-Fi"],
+    "director": "Christopher Nolan",
+    "actors": [
+      { "name": "Matthew McConaughey", "character": "Cooper" },
+      { "name": "Anne Hathaway", "character": "Brand" },
+      { "name": "Jessica Chastain", "character": "Murph" }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "The Dark Knight",
+    "plot": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+    "release_year": 2008,
+    "rating": 9.0,
+    "genres": ["Action", "Crime", "Drama"],
+    "director": "Christopher Nolan",
+    "actors": [
+      { "name": "Christian Bale", "character": "Bruce Wayne / Batman" },
+      { "name": "Heath Ledger", "character": "Joker" },
+      { "name": "Gary Oldman", "character": "Jim Gordon" }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Pulp Fiction",
+    "plot": "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption in Los Angeles.",
+    "release_year": 1994,
+    "rating": 8.9,
+    "genres": ["Crime", "Drama"],
+    "director": "Quentin Tarantino",
+    "actors": [
+      { "name": "John Travolta", "character": "Vincent Vega" },
+      { "name": "Samuel L. Jackson", "character": "Jules Winnfield" },
+      { "name": "Uma Thurman", "character": "Mia Wallace" }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Blade Runner 2049",
+    "plot": "A new blade runner, LAPD Officer K, unearths a long-buried secret that has the potential to plunge what's left of society into chaos. Cyberpunk detective story with neo-noir style.",
+    "release_year": 2017,
+    "rating": 8.0,
+    "genres": ["Action", "Drama", "Sci-Fi"],
+    "director": "Denis Villeneuve",
+    "actors": [
+      { "name": "Ryan Gosling", "character": "Officer K" },
+      { "name": "Harrison Ford", "character": "Rick Deckard" },
+      { "name": "Ana de Armas", "character": "Joi" }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Terminator 2: Judgment Day",
+    "plot": "A cyborg, identical to the one who failed to kill Sarah Connor, must now protect her ten-year-old son John from a more advanced and powerful cyborg. Classic 90s action masterpiece.",
+    "release_year": 1991,
+    "rating": 8.6,
+    "genres": ["Action", "Sci-Fi"],
+    "director": "James Cameron",
+    "actors": [
+      { "name": "Arnold Schwarzenegger", "character": "The Terminator" },
+      { "name": "Linda Hamilton", "character": "Sarah Connor" },
+      { "name": "Edward Furlong", "character": "John Connor" }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Die Hard",
+    "plot": "An NYPD officer tries to save his wife and several others taken hostage by German terrorists during a Christmas party at the Nakatomi Plaza in Los Angeles. Essential 80s action classic.",
+    "release_year": 1988,
+    "rating": 8.2,
+    "genres": ["Action", "Thriller"],
+    "director": "John McTiernan",
+    "actors": [
+      { "name": "Bruce Willis", "character": "John McClane" },
+      { "name": "Alan Rickman", "character": "Hans Gruber" },
+      { "name": "Bonnie Bedelia", "character": "Holly Gennaro McClane" }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Gladiator",
+    "plot": "A former Roman General sets out to exact vengeance against the corrupt emperor who murdered his family and sent him into slavery. Epic sword and sandal action.",
+    "release_year": 2000,
+    "rating": 8.5,
+    "genres": ["Action", "Adventure", "Drama"],
+    "director": "Ridley Scott",
+    "actors": [
+      { "name": "Russell Crowe", "character": "Maximus" },
+      { "name": "Joaquin Phoenix", "character": "Commodus" },
+      { "name": "Connie Nielsen", "character": "Lucilla" }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Saving Private Ryan",
+    "plot": "Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action. Intense WWII drama.",
+    "release_year": 1998,
+    "rating": 8.6,
+    "genres": ["Drama", "War"],
+    "director": "Steven Spielberg",
+    "actors": [
+      { "name": "Tom Hanks", "character": "Captain Miller" },
+      { "name": "Matt Damon", "character": "Private Ryan" },
+      { "name": "Tom Sizemore", "character": "Sergeant Horvath" }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Spirited Away",
+    "plot": "During her family's move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits, and where humans are changed into beasts.",
+    "release_year": 2001,
+    "rating": 8.6,
+    "genres": ["Animation", "Adventure", "Fantasy"],
+    "director": "Hayao Miyazaki",
+    "actors": [
+      { "name": "Rumi Hiiragi", "character": "Chihiro (voice)" },
+      { "name": "Miyu Irino", "character": "Haku (voice)" },
+      { "name": "Mari Natsuki", "character": "Yubaba (voice)" }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "The Lion King",
+    "plot": "Lion prince Simba and his father are targeted by his bitter uncle Scar, who wants to ascend the throne himself. Classic hand-drawn animation with memorable songs.",
+    "release_year": 1994,
+    "rating": 8.5,
+    "genres": ["Animation", "Adventure", "Drama"],
+    "director": "Roger Allers",
+    "actors": [
+      { "name": "Matthew Broderick", "character": "Simba (voice)" },
+      { "name": "Jeremy Irons", "character": "Scar (voice)" },
+      { "name": "James Earl Jones", "character": "Mufasa (voice)" }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Forrest Gump",
+    "plot": "The history of the United States from the 1950s to the '70s unfolds from the perspective of an Alabama man with an IQ of 75, who yearns to be reunited with his childhood sweetheart.",
+    "release_year": 1994,
+    "rating": 8.8,
+    "genres": ["Drama", "Romance"],
+    "director": "Robert Zemeckis",
+    "actors": [
+      { "name": "Tom Hanks", "character": "Forrest Gump" },
+      { "name": "Robin Wright", "character": "Jenny Curran" },
+      { "name": "Gary Sinise", "character": "Lieutenant Dan Taylor" }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Goodfellas",
+    "plot": "The story of Henry Hill and his life in the mafia, covering his relationship with his wife Karen Hill and his mob partners Jimmy Conway and Tommy DeVito.",
+    "release_year": 1990,
+    "rating": 8.7,
+    "genres": ["Biography", "Crime", "Drama"],
+    "director": "Martin Scorsese",
+    "actors": [
+      { "name": "Robert De Niro", "character": "Jimmy Conway" },
+      { "name": "Ray Liotta", "character": "Henry Hill" },
+      { "name": "Joe Pesci", "character": "Tommy DeVito" }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Fight Club",
+    "plot": "An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into much more. Mind-bending psychological drama.",
+    "release_year": 1999,
+    "rating": 8.8,
+    "genres": ["Drama"],
+    "director": "David Fincher",
+    "actors": [
+      { "name": "Brad Pitt", "character": "Tyler Durden" },
+      { "name": "Edward Norton", "character": "The Narrator" },
+      { "name": "Helena Bonham Carter", "character": "Marla Singer" }
+    ]
+  },
+  {
+    "id": 16,
+    "title": "The Silence of the Lambs",
+    "plot": "A young F.B.I. cadet must receive the help of an incarcerated and manipulative cannibal killer to help catch another serial killer, a madman who skins his victims.",
+    "release_year": 1991,
+    "rating": 8.6,
+    "genres": ["Crime", "Drama", "Thriller"],
+    "director": "Jonathan Demme",
+    "actors": [
+      { "name": "Jodie Foster", "character": "Clarice Starling" },
+      { "name": "Anthony Hopkins", "character": "Dr. Hannibal Lecter" },
+      { "name": "Scott Glenn", "character": "Jack Crawford" }
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Alien",
+    "plot": "The crew of a commercial spacecraft encounters a deadly lifeform after investigating an unknown transmission on an abandoned planet. Sci-fi horror classic.",
+    "release_year": 1979,
+    "rating": 8.5,
+    "genres": ["Horror", "Sci-Fi"],
+    "director": "Ridley Scott",
+    "actors": [
+      { "name": "Sigourney Weaver", "character": "Ripley" },
+      { "name": "Tom Skerritt", "character": "Dallas" },
+      { "name": "John Hurt", "character": "Kane" }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Jurassic Park",
+    "plot": "A pragmatic paleontologist touring an almost complete theme park on an island in Central America is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.",
+    "release_year": 1993,
+    "rating": 8.2,
+    "genres": ["Action", "Adventure", "Sci-Fi"],
+    "director": "Steven Spielberg",
+    "actors": [
+      { "name": "Sam Neill", "character": "Alan Grant" },
+      { "name": "Laura Dern", "character": "Ellie Sattler" },
+      { "name": "Jeff Goldblum", "character": "Ian Malcolm" }
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Star Wars: Episode IV - A New Hope",
+    "plot": "Luke Skywalker joins forces with a Jedi Knight, a cocky pilot, a Wookiee and two droids to save the galaxy from the Empire's world-destroying battle station, while also attempting to rescue Princess Leia.",
+    "release_year": 1977,
+    "rating": 8.6,
+    "genres": ["Action", "Adventure", "Fantasy", "Sci-Fi"],
+    "director": "George Lucas",
+    "actors": [
+      { "name": "Mark Hamill", "character": "Luke Skywalker" },
+      { "name": "Harrison Ford", "character": "Han Solo" },
+      { "name": "Carrie Fisher", "character": "Princess Leia" }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "The Lord of the Rings: The Fellowship of the Ring",
+    "plot": "A meek Hobbit from the Shire and eight companions set out on a journey to destroy the powerful One Ring and save Middle-earth from the Dark Lord Sauron.",
+    "release_year": 2001,
+    "rating": 8.8,
+    "genres": ["Action", "Adventure", "Drama", "Fantasy"],
+    "director": "Peter Jackson",
+    "actors": [
+      { "name": "Elijah Wood", "character": "Frodo Baggins" },
+      { "name": "Ian McKellen", "character": "Gandalf" },
+      { "name": "Viggo Mortensen", "character": "Aragorn" }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Avatar",
+    "plot": "A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home.",
+    "release_year": 2009,
+    "rating": 7.9,
+    "genres": ["Action", "Adventure", "Fantasy", "Sci-Fi"],
+    "director": "James Cameron",
+    "actors": [
+      { "name": "Sam Worthington", "character": "Jake Sully" },
+      { "name": "Zoe Saldana", "character": "Neytiri" },
+      { "name": "Sigourney Weaver", "character": "Dr. Grace Augustine" }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Whiplash",
+    "plot": "A promising young drummer enrolls at a cut-throat music conservatory where his dreams of greatness are mentored by an instructor who will stop at nothing to realize a student's potential.",
+    "release_year": 2014,
+    "rating": 8.5,
+    "genres": ["Drama", "Music"],
+    "director": "Damien Chazelle",
+    "actors": [
+      { "name": "Miles Teller", "character": "Andrew" },
+      { "name": "J.K. Simmons", "character": "Fletcher" },
+      { "name": "Paul Reiser", "character": "Jim" }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Eternal Sunshine of the Spotless Mind",
+    "plot": "When their relationship turns sour, a couple undergoes a medical procedure to have each other erased from their memories. Romantic sci-fi drama.",
+    "release_year": 2004,
+    "rating": 8.3,
+    "genres": ["Drama", "Romance", "Sci-Fi"],
+    "director": "Michel Gondry",
+    "actors": [
+      { "name": "Jim Carrey", "character": "Joel Barish" },
+      { "name": "Kate Winslet", "character": "Clementine Kruczynski" },
+      { "name": "Kirsten Dunst", "character": "Mary" }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Superbad",
+    "plot": "Two co-dependent high school seniors are forced to deal with separation anxiety after their plan to stage a booze-filled party goes awry. Hilarious teenage comedy.",
+    "release_year": 2007,
+    "rating": 7.6,
+    "genres": ["Comedy"],
+    "director": "Greg Mottola",
+    "actors": [
+      { "name": "Jonah Hill", "character": "Seth" },
+      { "name": "Michael Cera", "character": "Evan" },
+      { "name": "Christopher Mintz-Plasse", "character": "Fogell / McLovin" }
+    ]
+  },
+  {
+    "id": 25,
+    "title": "The Truman Show",
+    "plot": "An insurance salesman discovers his whole life is actually a reality TV show. Satirical comedy-drama exploring paranoia and media saturation.",
+    "release_year": 1998,
+    "rating": 8.2,
+    "genres": ["Comedy", "Drama"],
+    "director": "Peter Weir",
+    "actors": [
+      { "name": "Jim Carrey", "character": "Truman Burbank" },
+      { "name": "Laura Linney", "character": "Meryl Burbank" },
+      { "name": "Ed Harris", "character": "Christof" }
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Parasite",
+    "plot": "Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan. Dark thriller comedy.",
+    "release_year": 2019,
+    "rating": 8.5,
+    "genres": ["Drama", "Thriller"],
+    "director": "Bong Joon Ho",
+    "actors": [
+      { "name": "Song Kang-ho", "character": "Ki-taek" },
+      { "name": "Lee Sun-kyun", "character": "Mr. Park" },
+      { "name": "Cho Yeo-jeong", "character": "Mrs. Park" }
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Spider-Man: Into the Spider-Verse",
+    "plot": "Teen Miles Morales becomes the Spider-Man of his universe and must join with five spider-powered individuals from other dimensions to stop a threat for all realities. Stunning animation action.",
+    "release_year": 2018,
+    "rating": 8.4,
+    "genres": ["Animation", "Action", "Adventure", "Sci-Fi"],
+    "director": "Bob Persichetti",
+    "actors": [
+      { "name": "Shameik Moore", "character": "Miles Morales / Spider-Man (voice)" },
+      { "name": "Jake Johnson", "character": "Peter B. Parker / Spider-Man (voice)" },
+      { "name": "Hailee Steinfeld", "character": "Gwen Stacy / Spider-Woman (voice)" }
+    ]
+  },
+  {
+    "id": 28,
+    "title": "The Grand Budapest Hotel",
+    "plot": "A writer relates his adventures at a renowned European resort hotel between the first and second World Wars with a concierge who is wrongly framed for murder. Stylized comedy adventure.",
+    "release_year": 2014,
+    "rating": 8.1,
+    "genres": ["Adventure", "Comedy", "Drama"],
+    "director": "Wes Anderson",
+    "actors": [
+      { "name": "Ralph Fiennes", "character": "Monsieur Gustave H." },
+      { "name": "Tony Revolori", "character": "Zero Moustafa" },
+      { "name": "Saoirse Ronan", "character": "Agatha" }
+    ]
+  },
+  {
+    "id": 29,
+    "title": "The Godfather",
+    "plot": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son. Masterpiece crime drama.",
+    "release_year": 1972,
+    "rating": 9.2,
+    "genres": ["Crime", "Drama"],
+    "director": "Francis Ford Coppola",
+    "actors": [
+      { "name": "Marlon Brando", "character": "Vito Corleone" },
+      { "name": "Al Pacino", "character": "Michael Corleone" },
+      { "name": "James Caan", "character": "Sonny Corleone" }
+    ]
+  },
+  {
+    "id": 30,
+    "title": "Speed",
+    "plot": "A young SWAT cop must prevent a bomb exploding aboard a city bus by keeping its speed above 50 mph. Classic 90s action thriller.",
+    "release_year": 1994,
+    "rating": 7.3,
+    "genres": ["Action", "Adventure", "Thriller"],
+    "director": "Jan de Bont",
+    "actors": [
+      { "name": "Keanu Reeves", "character": "Jack Traven" },
+      { "name": "Sandra Bullock", "character": "Annie Porter" },
+      { "name": "Dennis Hopper", "character": "Howard Payne" }
+    ]
+  }
+]

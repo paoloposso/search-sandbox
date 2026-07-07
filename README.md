@@ -1,0 +1,77 @@
+# Dual-Search Evaluation Architecture (POC)
+
+This POC project builds a **Dual-Search Evaluation Architecture** to compare **OpenSearch** and **Vespa.ai** side by side. PostgreSQL acts as the primary database (transactional "Source of Truth"), broadcasting data to both read-only search engines. A unified comparison gateway built in C# (.NET 10.0) queries both search engines concurrently, timing their performance and returning side-by-side results.
+
+## Architecture Diagram
+
+```mermaid
+graph TD
+    User([Client/User]) -->|GET /api/search/compare| Gateway[C# Search Gateway]
+    
+    %% Ingestion Flow
+    JSON[movies_mock_data.json] -->|POST /api/db/seed| Gateway
+    Gateway -->|EF Core Write| Postgres[(PostgreSQL)]
+    
+    %% Synchronization Flows
+    Gateway -->|POST /api/search/opensearch/sync| OpenSearch[(OpenSearch)]
+    Postgres -->|Go Streamer| Vespa[(Vespa.ai)]
+    
+    %% Query Flows
+    Gateway -->|BM25 Search| OpenSearch
+    Gateway -->|YQL Tensor Search| Vespa
+```
+
+---
+
+## Workspace Layout
+- `docker-compose.yml`: Local Docker environment containing Postgres, OpenSearch, and OpenSearch Dashboards (Vespa to be added in Phase 3).
+- `movies_mock_data.json`: Pre-constructed mock database containing 30 movies with rich metadata.
+- `src/SearchGateway/`: C# .NET 10.0 Web API gateway.
+- `docs/concepts_and_mappings.md`: Conceptual explanation of SQL vs Search and detailed index structures.
+- `.agents/`: Project-scoped coding guidelines and customized search engine skill helpers.
+
+---
+
+## Getting Started
+
+### 1. Prerequisites
+- Docker & Docker Compose
+- .NET 10.0 SDK
+
+### 2. Start Infrastructure
+Run the following command in the project root to spin up PostgreSQL, OpenSearch, and OpenSearch Dashboards:
+```bash
+docker compose up -d
+```
+
+### 3. Run C# Web API Gateway
+From the workspace root, run:
+```bash
+dotnet run --project src/SearchGateway/SearchGateway.csproj --launch-profile http
+```
+The application will listen on `http://localhost:5042`. On startup, it automatically ensures the PostgreSQL database and tables are created.
+
+---
+
+## Verifying Phase by Phase
+
+### Phase 1: Relational Foundation (Postgres)
+1. **Seed Postgres**: Trigger data load from `movies_mock_data.json` to Postgres:
+   ```bash
+   curl -i -X POST http://localhost:5042/api/db/seed
+   ```
+2. **Verify Database Content**: Check that movies are successfully retrieved:
+   ```bash
+   curl -i http://localhost:5042/api/movies
+   ```
+
+### Phase 2: OpenSearch Integration
+1. **Sync to OpenSearch**: Bulk index the database contents into OpenSearch:
+   ```bash
+   curl -i -X POST http://localhost:5042/api/search/opensearch/sync
+   ```
+2. **Verify Index Search**: Run a keyword search on OpenSearch (e.g. searching for "cyberpunk"):
+   ```bash
+   curl -i "http://localhost:5042/api/search/opensearch?q=cyberpunk"
+   ```
+3. **OpenSearch Dashboards**: Open `http://localhost:5601` in your browser to run Dev Tools console queries on the `movies` index.
