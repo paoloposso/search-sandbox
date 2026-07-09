@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OpenSearch.Client;
+using Scalar.AspNetCore;
 using SearchGateway.Data;
 using SearchGateway.Routes;
 using SearchGateway.Services;
@@ -29,11 +30,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseHttpsRedirection();
+
+// if (!app.Environment.IsDevelopment())
+// {
+//     app.UseHttpsRedirection();
+// }
 
 // Automatically ensure the database is created
 using (var scope = app.Services.CreateScope())

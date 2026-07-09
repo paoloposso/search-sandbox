@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <!-- Modern Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
             --bg-color: #080b11;
@@ -35,13 +38,16 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(157, 78, 221, 0.15) 0%, transparent 40%);
             background-attachment: fixed;
         }
 
-        h1, h2, h3, .brand {
+        h1,
+        h2,
+        h3,
+        .brand {
             font-family: 'Outfit', sans-serif;
             font-weight: 700;
         }
@@ -78,8 +84,15 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.8); box-shadow: 0 0 10px var(--neon-blue); }
-            100% { transform: scale(1.2); box-shadow: 0 0 25px var(--neon-blue); }
+            0% {
+                transform: scale(0.8);
+                box-shadow: 0 0 10px var(--neon-blue);
+            }
+
+            100% {
+                transform: scale(1.2);
+                box-shadow: 0 0 25px var(--neon-blue);
+            }
         }
 
         .brand {
@@ -199,7 +212,8 @@
             font-weight: 600;
         }
 
-        .form-select, .form-input {
+        .form-select,
+        .form-input {
             width: 100%;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -211,7 +225,8 @@
             font-family: inherit;
         }
 
-        .form-select:focus, .form-input:focus {
+        .form-select:focus,
+        .form-input:focus {
             border-color: var(--neon-blue);
             box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
         }
@@ -419,7 +434,7 @@
             border-radius: 10px;
             background: #111827;
             border-left: 4px solid var(--neon-blue);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             transform: translateY(150%);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
@@ -452,6 +467,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -469,12 +485,12 @@
 
         <!-- Main Workspace -->
         <div class="dashboard-grid">
-            
+
             <!-- Left Side Control Parameters -->
             <div class="control-panel">
                 <div class="glass-card">
                     <h2>Query Parameters</h2>
-                    
+
                     <!-- Search Type Selection -->
                     <div class="form-group">
                         <label for="search-type">Query Engine Mode</label>
@@ -502,7 +518,8 @@
 
                     <!-- Database Controls -->
                     <div class="system-action-group" style="margin-top: 1.5rem;">
-                        <button class="btn btn-danger" onclick="clearDatabase()" id="btn-clear">Clear PostgreSQL & OS</button>
+                        <button class="btn btn-danger" onclick="clearDatabase()" id="btn-clear">Clear PostgreSQL &
+                            OS</button>
                     </div>
                 </div>
 
@@ -523,9 +540,12 @@
                     <div class="search-row">
                         <div class="search-box">
                             <span class="search-icon">🔍</span>
-                            <input type="text" id="search-input" class="search-input-field" placeholder="Search movies, plots, directors or actors..." onkeyup="handleSearchKeyUp(event)">
+                            <input type="text" id="search-input" class="search-input-field"
+                                placeholder="Search movies, plots, directors or actors..."
+                                onkeyup="handleSearchKeyUp(event)">
                         </div>
-                        <button class="btn btn-primary" onclick="runSearch()" style="width: auto; padding: 0 1.75rem;">Search</button>
+                        <button class="btn btn-primary" onclick="runSearch()"
+                            style="width: auto; padding: 0 1.75rem;">Search</button>
                     </div>
                 </div>
 
@@ -558,7 +578,7 @@
         const searchType = document.getElementById('search-type');
         const genreFilter = document.getElementById('genre-filter');
         const resultsContainer = document.getElementById('results-container');
-        
+
         // Metrics
         const metricTotal = document.getElementById('metric-total');
         const metricTime = document.getElementById('metric-time');
@@ -574,7 +594,7 @@
                 cheatsheet.style.opacity = '0.5';
             }
         }
-        
+
         searchType.addEventListener('change', updateSyntaxHelpVisibility);
         updateSyntaxHelpVisibility();
 
@@ -627,7 +647,7 @@
                     let maxScore = 0;
                     resultsContainer.innerHTML = data.results.map(movie => {
                         if (movie.score > maxScore) maxScore = movie.score;
-                        
+
                         const isConstantScore = movie.score === 1;
                         const scoreClass = isConstantScore ? 'score-badge score-wildcard' : 'score-badge';
                         const scoreDisplay = movie.score ? movie.score.toFixed(4) : 'N/A';
@@ -656,7 +676,7 @@
                             </div>
                         `;
                     }).join('');
-                    
+
                     metricScore.innerText = maxScore.toFixed(4);
                 } else {
                     resultsContainer.innerHTML = `
@@ -737,15 +757,11 @@
             try {
                 // 1. Clear PostgreSQL
                 const dbClearResponse = await fetch('/api/db/clear', { method: 'POST' });
-                
-                // 2. Wipe OpenSearch by calling DELETE index on OpenSearch Port directly via a local bypass proxy or API endpoint.
-                // Since our API currently does not have a direct OS clear endpoint, let's trigger it.
-                // We'll clear the database, and to clear OpenSearch we will just send an empty sync 
-                // (or if that's not available, sync empty list, which deletes or keeps it. Let's make an API clear endpoint on openSearch or show warning).
-                // Actually, our API /db/clear clears DB. Let's send an empty sync!
-                const osSyncResponse = await fetch('/api/search/opensearch/sync', { method: 'POST' });
-                
-                if (dbClearResponse.ok && osSyncResponse.ok) {
+
+                // 2. Wipe OpenSearch movies index cleanly
+                const osClearResponse = await fetch('/api/search/opensearch/clear', { method: 'DELETE' });
+
+                if (dbClearResponse.ok && osClearResponse.ok) {
                     showToast('PostgreSQL tables cleared and OpenSearch index emptied!', 'success');
                     resultsContainer.innerHTML = `
                         <div class="empty-state">
@@ -771,11 +787,11 @@
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const msgSpan = document.getElementById('toast-message');
-            
+
             toast.className = 'toast';
             if (type === 'success') toast.classList.add('toast-success');
             if (type === 'error') toast.classList.add('toast-error');
-            
+
             msgSpan.innerText = message;
             toast.classList.add('show');
 
@@ -795,4 +811,5 @@
         }
     </script>
 </body>
+
 </html>

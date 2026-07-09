@@ -80,6 +80,11 @@ public class OpenSearchService(IOpenSearchClient client)
         return response;
     }
 
+    public async Task<DeleteIndexResponse> DeleteIndexAsync()
+    {
+        return await client.Indices.DeleteAsync(IndexName);
+    }
+
     public async Task<ISearchResponse<MovieSearchDocument>> SearchAsync(
         string? queryText, string? genre, string? searchType = "multi")
     {

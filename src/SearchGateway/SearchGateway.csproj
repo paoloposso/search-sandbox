@@ -16,6 +16,7 @@
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
     <PackageReference Include="OpenSearch.Client" Version="1.8.0" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.16.11" />
   </ItemGroup>
 
 </Project>

@@ -51,7 +51,7 @@ public static class SearchRoutes
 
                 return Results.Ok(new SyncResponse
                 {
-                    Message = $"Successfully synchronized {movies.Count} denormalized movies to OpenSearch.",
+                    Message = $"Successfully synchronized {movies.Count} movies to OpenSearch.",
                     TookMs = bulkResponse.Took,
                     HasErrors = bulkResponse.Errors
                 });
@@ -63,6 +63,26 @@ public static class SearchRoutes
         })
         .Produces<SyncResponse>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        // Delete OpenSearch index
+        group.MapDelete("/opensearch/clear", async (OpenSearchService openSearchService) =>
+        {
+            try
+            {
+                var response = await openSearchService.DeleteIndexAsync();
+                if (!response.IsValid && response.ServerError?.Status != 404)
+                {
+                    return Results.Problem($"Failed to delete index: {response.ServerError?.Error?.Reason ?? response.OriginalException?.Message}");
+                }
+                return Results.Ok(new { message = "OpenSearch index 'movies' deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"Clear failed: {ex.Message}");
+            }
+        })
+        .Produces(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Query OpenSearch across denormalized properties (Title, Plot, Director, Actors)
