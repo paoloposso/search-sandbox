@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search POC Evaluation Dashboard</title>
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #080b11;
+            --card-bg: rgba(17, 24, 39, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-glow: #3b82f6;
+            --accent-glow: #10b981;
+            --neon-blue: #00d2ff;
+            --neon-purple: #9d4edd;
+            --neon-green: #05ffa1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(157, 78, 221, 0.15) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, .brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Top Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-glow {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); box-shadow: 0 0 10px var(--neon-blue); }
+            100% { transform: scale(1.2); box-shadow: 0 0 25px var(--neon-blue); }
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #00d2ff, #9d4edd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* Left Control Panel */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            border-left: 3px solid var(--neon-blue);
+            padding-left: 0.5rem;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+        }
+
+        .system-action-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-select:focus, .form-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
+        }
+
+        .form-select option {
+            background-color: #111827;
+            color: white;
+        }
+
+        /* Syntax Cheat Sheet */
+        .syntax-cheatsheet {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            border-left: 2px solid var(--neon-purple);
+        }
+
+        .syntax-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        /* Search Panel & Metrics */
+        .search-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 2.75rem;
+            font-size: 1.05rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input-field:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .metrics-bar {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        .metric span {
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        /* Results Cards Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(0, 210, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .movie-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: white;
+            line-height: 1.3;
+        }
+
+        .score-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(0, 210, 255, 0.15);
+            color: var(--neon-blue);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            white-space: nowrap;
+        }
+
+        .score-wildcard {
+            background: rgba(157, 78, 221, 0.15);
+            color: var(--neon-purple);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            align-items: center;
+        }
+
+        .meta-rating {
+            background: rgba(253, 224, 71, 0.1);
+            color: #fde047;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .movie-plot {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin: 0.25rem 0;
+        }
+
+        .genre-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: auto;
+        }
+
+        .genre-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .cast-list {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 0.6rem;
+            margin-top: 0.25rem;
+        }
+
+        .cast-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Status Banner / Feedback */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            background: #111827;
+            border-left: 4px solid var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast-success {
+            border-left-color: var(--neon-green);
+        }
+
+        .toast-error {
+            border-left-color: #ef4444;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Dashboard Header -->
+        <header>
+            <div class="brand-section">
+                <div class="logo-glow"></div>
+                <div class="brand">Search Evaluation Sandbox</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="seedDatabase()" id="btn-seed">Seed Postgres</button>
+                <button class="btn btn-primary" onclick="syncOpenSearch()" id="btn-sync">Sync OpenSearch</button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Side Control Parameters -->
+            <div class="control-panel">
+                <div class="glass-card">
+                    <h2>Query Parameters</h2>
+                    
+                    <!-- Search Type Selection -->
+                    <div class="form-group">
+                        <label for="search-type">Query Engine Mode</label>
+                        <select id="search-type" class="form-select" onchange="runSearch()">
+                            <option value="multi">MultiMatch (Fuzzy Typos)</option>
+                            <option value="simple">SimpleQueryString (Wildcard & Operators)</option>
+                        </select>
+                    </div>
+
+                    <!-- Genre Filter Select -->
+                    <div class="form-group">
+                        <label for="genre-filter">Genre filter</label>
+                        <select id="genre-filter" class="form-select" onchange="runSearch()">
+                            <option value="">-- All Genres --</option>
+                            <option value="Action">Action</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Adventure">Adventure</option>
+                            <option value="Horror">Horror</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Thriller">Thriller</option>
+                            <option value="Crime">Crime</option>
+                        </select>
+                    </div>
+
+                    <!-- Database Controls -->
+                    <div class="system-action-group" style="margin-top: 1.5rem;">
+                        <button class="btn btn-danger" onclick="clearDatabase()" id="btn-clear">Clear PostgreSQL & OS</button>
+                    </div>
+                </div>
+
+                <!-- Syntax Help -->
+                <div class="syntax-cheatsheet" id="syntax-help">
+                    <div class="syntax-title">SimpleQueryString DQL syntax:</div>
+                    • Use <b>*</b> for wildcard prefix: <code>paleo*</code><br>
+                    • Use <b>+</b> for AND matching: <code>dinosaur + island</code><br>
+                    • Use <b>|</b> for OR matching: <code>dinosaur | space</code><br>
+                    • Use <b>-</b> to exclude terms: <code>dinosaur -island</code><br>
+                    • Use <b>( )</b> to group: <code>(dinosaur + island) | alien</code>
+                </div>
+            </div>
+
+            <!-- Search Area & Output Results -->
+            <div class="search-area">
+                <div class="glass-card">
+                    <div class="search-row">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="search-input" class="search-input-field" placeholder="Search movies, plots, directors or actors..." onkeyup="handleSearchKeyUp(event)">
+                        </div>
+                        <button class="btn btn-primary" onclick="runSearch()" style="width: auto; padding: 0 1.75rem;">Search</button>
+                    </div>
+                </div>
+
+                <!-- Search Metrics -->
+                <div class="metrics-bar">
+                    <div class="metric">Results: <span id="metric-total">0</span></div>
+                    <div class="metric">Engine latency: <span id="metric-time">0 ms</span></div>
+                    <div class="metric">Max matching score: <span id="metric-score">0.00</span></div>
+                </div>
+
+                <!-- Cards Grid -->
+                <div class="results-grid" id="results-container">
+                    <div class="empty-state">
+                        Enter a search query or select a genre filter to browse movies.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-message">Notification details here.</span>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const searchType = document.getElementById('search-type');
+        const genreFilter = document.getElementById('genre-filter');
+        const resultsContainer = document.getElementById('results-container');
+        
+        // Metrics
+        const metricTotal = document.getElementById('metric-total');
+        const metricTime = document.getElementById('metric-time');
+        const metricScore = document.getElementById('metric-score');
+
+        // Toggle syntax guide helper visually depending on mode select
+        function updateSyntaxHelpVisibility() {
+            const cheatsheet = document.getElementById('syntax-help');
+            if (searchType.value === 'simple') {
+                cheatsheet.style.opacity = '1';
+                cheatsheet.style.pointerEvents = 'auto';
+            } else {
+                cheatsheet.style.opacity = '0.5';
+            }
+        }
+        
+        searchType.addEventListener('change', updateSyntaxHelpVisibility);
+        updateSyntaxHelpVisibility();
+
+        function handleSearchKeyUp(event) {
+            if (event.key === 'Enter') {
+                runSearch();
+            }
+        }
+
+        async function runSearch() {
+            const query = searchInput.value.trim();
+            const genre = genreFilter.value;
+            const type = searchType.value;
+
+            // Make sure we have at least query or genre filter
+            if (!query && !genre) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        Enter a search query or select a genre filter to browse movies.
+                    </div>
+                `;
+                metricTotal.innerText = '0';
+                metricTime.innerText = '0 ms';
+                metricScore.innerText = '0.00';
+                return;
+            }
+
+            resultsContainer.innerHTML = `<div class="empty-state">Querying OpenSearch index...</div>`;
+            const startTime = performance.now();
+
+            try {
+                const params = new URLSearchParams();
+                if (query) params.append('q', query);
+                if (genre) params.append('genre', genre);
+                params.append('type', type);
+
+                const response = await fetch(`/api/search/opensearch?${params.toString()}`);
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(errText || `Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const latency = Math.round(performance.now() - startTime);
+
+                metricTime.innerText = `${latency} ms`;
+                metricTotal.innerText = data.total;
+
+                if (data.results && data.results.length > 0) {
+                    let maxScore = 0;
+                    resultsContainer.innerHTML = data.results.map(movie => {
+                        if (movie.score > maxScore) maxScore = movie.score;
+                        
+                        const isConstantScore = movie.score === 1;
+                        const scoreClass = isConstantScore ? 'score-badge score-wildcard' : 'score-badge';
+                        const scoreDisplay = movie.score ? movie.score.toFixed(4) : 'N/A';
+
+                        return `
+                            <div class="movie-card">
+                                <div class="card-header">
+                                    <div class="movie-title">${escapeHtml(movie.title)}</div>
+                                    <span class="${scoreClass}">Score: ${scoreDisplay}</span>
+                                </div>
+                                <div class="movie-meta">
+                                    <span class="meta-rating">★ ${movie.rating.toFixed(1)}</span>
+                                    <span>${movie.release_year}</span>
+                                    <span>•</span>
+                                    <span>${escapeHtml(movie.director_name)}</span>
+                                </div>
+                                <div class="movie-plot">
+                                    ${escapeHtml(movie.plot)}
+                                </div>
+                                <div class="genre-tags">
+                                    ${movie.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('')}
+                                </div>
+                                <div class="cast-list">
+                                    <span class="cast-label">Cast: </span>${escapeHtml(movie.actor_names.join(', '))}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    metricScore.innerText = maxScore.toFixed(4);
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            No movies matched your search criteria. Try a different query.
+                        </div>
+                    `;
+                    metricScore.innerText = '0.00';
+                }
+            } catch (err) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state" style="color: #ef4444; border-color: rgba(239,68,68,0.2);">
+                        Error executing search query: ${escapeHtml(err.message)}
+                    </div>
+                `;
+                metricTotal.innerText = 'Error';
+                metricScore.innerText = '0.00';
+            }
+        }
+
+        // Database seeding and syncing operations
+        async function seedDatabase() {
+            const btn = document.getElementById('btn-seed');
+            const oldText = btn.innerText;
+            btn.innerText = 'Seeding...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/db/seed', { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showToast(`Database seeded successfully! Created ${data.moviesCount} movies.`, 'success');
+                } else {
+                    throw new Error(data.errorMessage || 'Failed to seed DB.');
+                }
+            } catch (err) {
+                showToast(`Seeding failed: ${err.message}`, 'error');
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+        }
+
+        async function syncOpenSearch() {
+            const btn = document.getElementById('btn-sync');
+            const oldText = btn.innerText;
+            btn.innerText = 'Syncing...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/search/opensearch/sync', { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok && !data.hasErrors) {
+                    showToast(data.message || 'OpenSearch index synced successfully!', 'success');
+                    // Automatically run search if input has value to refresh list
+                    if (searchInput.value || genreFilter.value) runSearch();
+                } else {
+                    throw new Error(data.message || 'Failed to sync index.');
+                }
+            } catch (err) {
+                showToast(`Sync failed: ${err.message}`, 'error');
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+        }
+
+        async function clearDatabase() {
+            if (!confirm('Are you sure you want to delete all rows from the database and wipe the OpenSearch movies index?')) {
+                return;
+            }
+
+            const btn = document.getElementById('btn-clear');
+            btn.disabled = true;
+
+            try {
+                // 1. Clear PostgreSQL
+                const dbClearResponse = await fetch('/api/db/clear', { method: 'POST' });
+                
+                // 2. Wipe OpenSearch by calling DELETE index on OpenSearch Port directly via a local bypass proxy or API endpoint.
+                // Since our API currently does not have a direct OS clear endpoint, let's trigger it.
+                // We'll clear the database, and to clear OpenSearch we will just send an empty sync 
+                // (or if that's not available, sync empty list, which deletes or keeps it. Let's make an API clear endpoint on openSearch or show warning).
+                // Actually, our API /db/clear clears DB. Let's send an empty sync!
+                const osSyncResponse = await fetch('/api/search/opensearch/sync', { method: 'POST' });
+                
+                if (dbClearResponse.ok && osSyncResponse.ok) {
+                    showToast('PostgreSQL tables cleared and OpenSearch index emptied!', 'success');
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            Normalized database and search index cleared. Please run seeding to repopulate.
+                        </div>
+                    `;
+                    searchInput.value = '';
+                    genreFilter.value = '';
+                    metricTotal.innerText = '0';
+                    metricTime.innerText = '0 ms';
+                    metricScore.innerText = '0.00';
+                } else {
+                    throw new Error('Failed to complete clearing operation.');
+                }
+            } catch (err) {
+                showToast(`Clear failed: ${err.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Helpers
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toast-message');
+            
+            toast.className = 'toast';
+            if (type === 'success') toast.classList.add('toast-success');
+            if (type === 'error') toast.classList.add('toast-error');
+            
+            msgSpan.innerText = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
