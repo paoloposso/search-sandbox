@@ -66,16 +66,16 @@ public static class SearchRoutes
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Query OpenSearch across denormalized properties (Title, Plot, Director, Actors)
-        group.MapGet("/opensearch", async (string q, OpenSearchService openSearchService) =>
+        group.MapGet("/opensearch", async (string? q, string? genre, string? type, OpenSearchService openSearchService) =>
         {
-            if (string.IsNullOrWhiteSpace(q))
+            if (string.IsNullOrWhiteSpace(q) && string.IsNullOrWhiteSpace(genre))
             {
-                return Results.BadRequest("Query parameter 'q' is required.");
+                return Results.BadRequest("At least one search parameter ('q' or 'genre') is required.");
             }
 
             try
             {
-                var searchResponse = await openSearchService.SearchAsync(q);
+                var searchResponse = await openSearchService.SearchAsync(q, genre, type);
                 if (!searchResponse.IsValid)
                 {
                     return Results.Problem($"Search query failed: {searchResponse.ServerError?.Error?.Reason}");

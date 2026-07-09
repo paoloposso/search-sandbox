@@ -80,22 +80,61 @@ public class OpenSearchService(IOpenSearchClient client)
         return response;
     }
 
-    public async Task<ISearchResponse<MovieSearchDocument>> SearchAsync(string queryText)
+    public async Task<ISearchResponse<MovieSearchDocument>> SearchAsync(
+        string? queryText, string? genre, string? searchType = "multi")
     {
         await EnsureIndexExistsAsync();
 
         return await client.SearchAsync<MovieSearchDocument>(s => s
             .Index(IndexName)
             .Query(q => q
-                .MultiMatch(mm => mm
-                    .Fields(f => f
-                        .Field(m => m.Title, boost: 2.0)
-                        .Field(m => m.Plot)
-                        .Field(m => m.DirectorName, boost: 1.5)
-                        .Field(m => m.ActorNames, boost: 1.5)
-                    )
-                    .Query(queryText)
-                    .Fuzziness(Fuzziness.Auto)
+                .Bool(b => b
+                    .Must(m => 
+                    {
+                        if (!string.IsNullOrWhiteSpace(queryText))
+                        {
+                            if (searchType == "simple")
+                            {
+                                return m.SimpleQueryString(sqs => sqs
+                                    .Fields(f => f
+                                        .Field(movie => movie.Title, boost: 2.0)
+                                        .Field(movie => movie.Plot)
+                                        .Field(movie => movie.DirectorName, boost: 1.5)
+                                        .Field(movie => movie.ActorNames, boost: 1.5)
+                                        .Field(movie => movie.Genres, boost: 1.5)
+                                    )
+                                    .Query(queryText)
+                                );
+                            }
+                            else
+                            {
+                                return m.MultiMatch(mm => mm
+                                    .Fields(f => f
+                                        .Field(movie => movie.Title, boost: 2.0)
+                                        .Field(movie => movie.Plot)
+                                        .Field(movie => movie.DirectorName, boost: 1.5)
+                                        .Field(movie => movie.ActorNames, boost: 1.5)
+                                        .Field(movie => movie.Genres, boost: 1.5)
+                                    )
+                                    .Query(queryText)
+                                    .Fuzziness(Fuzziness.Auto)
+                                );
+                            }
+                        }
+                        return m.MatchAll();
+                    })
+                    .Filter(f =>
+                    {
+                        var filterList =
+                            new List<Func<QueryContainerDescriptor<MovieSearchDocument>, QueryContainer>>();
+
+                        if (!string.IsNullOrWhiteSpace(genre))
+                        {
+                            filterList.Add(fq => fq.Term(t => t.Field(m => m.Genres).Value(genre)));
+                        }
+
+                        return f.Bool(fb => fb.Must(filterList));
+                    })
                 )
             )
         );

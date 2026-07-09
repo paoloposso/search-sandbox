@@ -578,9 +578,199 @@ You can run tools that consume this JSON to generate beautiful, interactive web 
 *   **Swagger UI**: Reads the JSON to build a traditional "Try it out" page.
 
 #### 2. Auto-Generating Client SDKs (Kiota, NSwag)
-Instead of manually writing HTTP client code (like `HttpClient` calls in C# or `fetch` calls in TypeScript), you can feed `/openapi/v1.json` into a client generator tool (like **Microsoft Kiota** or **NSwag**). 
+Instead of manually writing HTTP client code (like `HttpClient` calls in C# or `fetch` calls in TypeScript), you can feed `/openapi/v1.json` into a client generator tool (like **Microsoft Kiota** or **NSwag**). The tool will parse the OpenAPI spec and **instantly write complete client SDK code** (in TS, C#, Python, Go, etc.) for you, complete with full static typing for all endpoints and DTOs!
 
-The tool will parse the OpenAPI spec and **instantly write complete client SDK code** (in TS, C#, Python, Go, etc.) for you, complete with full static typing for all endpoints and DTOs!
+---
+
+## 12. OpenSearch MultiMatch Queries & Field Behaviors
+
+When running a `MultiMatch` query, we specify a list of target search fields:
+```csharp
+.MultiMatch(mm => mm
+    .Fields(f => f
+        .Field(m => m.Title, boost: 2.0)
+        .Field(m => m.Plot)
+        .Field(m => m.DirectorName, boost: 1.5)
+        .Field(m => m.ActorNames, boost: 1.5)
+    )
+    .Query(queryText)
+)
+```
+
+### A. What fields are in the index?
+Our fully mapped `MovieSearchDocument` index contains the following fields:
+1.  `Id` (integer)
+2.  `Title` (text)
+3.  `Plot` (text)
+4.  `ReleaseYear` (integer)
+5.  `Rating` (double)
+6.  `DirectorName` (text)
+7.  `Genres` (keyword list)
+8.  `ActorNames` (text list)
+
+---
+
+### B. Are fields NOT listed in the `Fields()` selector ignored?
+Yes and no, depending on the context:
+
+#### 1. Ignored for Matching (True)
+OpenSearch **will not** check the values of unlisted fields to determine if a document matches the query string.
+*   **Example**: If a user searches for `"Sci-Fi"` (a Genre) or `"2010"` (a Release Year), the movie will **not** match the search query because `Genres` and `ReleaseYear` are omitted from the `Fields()` list. The only way it matches is if `"Sci-Fi"` or `"2010"` is also explicitly written inside the movie's `Title` or `Plot`.
+
+#### 2. Included in the Response Payload (False)
+Even though a field is ignored for matching, it is **not deleted or omitted from the result**. 
+*   Once OpenSearch finds a matching document (based on matches in `Title`, `Plot`, etc.), it returns the **entire JSON document source**.
+*   This means the returned `MovieSearchDocument` object still has its `Id`, `ReleaseYear`, `Rating`, and `Genres` fields fully populated!
+
+---
+
+### C. Why do we exclude some fields from text queries?
+1.  **Noise Prevention**: Fields like `Rating` (e.g. `8.8`) or `ReleaseYear` (e.g. `1999`) contain numbers. If a user queries the word `"1999"`, we don't want every movie with a rating of `1.9` matching it.
+2.  **Field Types**: `Genres` is a `keyword` field (exact case-sensitive match). Text search analyzers do not work natively on keyword types unless you run structured filters (like terms filters).
+
+---
+
+## 13. OpenSearch Architecture & Core Concepts
+
+### A. AutoMap vs. Explicit Properties Mapping
+When registering indexes using the .NET OpenSearch client, we use `Map<T>` to declare our schema:
+```csharp
+.Map<MovieSearchDocument>(m => m
+    .AutoMap()
+    .Properties(p => p
+        // ... specific configurations
+    )
+)
+```
+
+*   **`.AutoMap()`**: Reads the public properties of the C# class (`MovieSearchDocument`) via reflection and automatically assigns default mappings (e.g. strings map to analyzed `text`, integers map to `long`).
+*   **`.Properties(...)`**: Allows you to explicitly override these defaults (e.g., setting a custom stemmer analyzer or designating a field as a `keyword`).
+*   **If you omit `.AutoMap()`**: Only the fields you list in `.Properties(...)` will be structured in advance. Any unlisted fields present in documents you write will be dynamically typed (guessed) by OpenSearch at runtime.
+
+---
+
+### B. Core Search Engine Terminology
+
+#### 1. Document (The Record)
+In SQL, data resides in rows. In OpenSearch, data resides in **Documents** (JSON objects).
+*   Search documents must be **denormalized** (fully flat). Instead of referencing database tables via foreign keys (which requires heavy JOIN operations), related data (like genre and actor list strings) are copied directly into the movie's document.
+
+#### 2. Index (The Table)
+In SQL, you have tables. In OpenSearch, you have an **Index** (such as our `"movies"` index).
+*   An index is a logical space containing documents of similar shapes. 
+*   It is physically split into **Shards** which distribute storage across nodes.
+
+#### 3. Inverted Index (The Core Engine)
+Instead of searching document by document to match text (e.g. SQL's `LIKE %word%`), OpenSearch parses documents and builds an **Inverted Index**.
+*   This matches individual tokens (words) to the document IDs containing them.
+*   *Example*:
+    ```text
+    "matrix"  -> [Doc #1, Doc #3]
+    "hacker"  -> [Doc #3, Doc #8]
+    ```
+    When querying `"hacker"`, the search engine doesn't scan the dataset; it looks up the word in the index directory and instantly returns `[Doc #3, Doc #8]`.
+
+#### 4. Mapping (The Schema)
+The definition of fields and types. 
+*   Unlike standard databases, mapping types in search indexes are rigid: **once a mapping type is assigned and data is written, it cannot be modified**. You must delete the index and recreate it to alter any field types.
+
+#### 5. Analyzers (Tokenizers & Filters)
+Analyzers preprocess natural language strings during writes (indexing) and queries (searching).
+*   **Tokenizer**: Splits sentences into terms (e.g. `"The Matrix"` $\rightarrow$ `["The", "Matrix"]`).
+*   **Filters**: Standardize terms (lowercasing, removing stop-words like `"the"`, and reducing words to roots—e.g. `"hacking"` $\rightarrow$ `"hack"`).
+
+---
+
+## 15. Text Query Types: MultiMatch vs. QueryString vs. SimpleQueryString
+
+OpenSearch offers different query types for text matching depending on the level of search complexity and syntax validation required.
+
+### A. MultiMatch Query
+*   **Utility**: Designed for standard, consumer-facing search inputs (like a Google-style single search input). It searches a simple text string against multiple properties.
+*   **Pros**:
+    *   **100% Safe**: Mismatched quotes, brackets, or other symbols will never crash the query; they are simply ignored or tokenized.
+    *   **Native Fuzziness**: Out-of-the-box support for `Fuzziness.Auto` (handling spelling typos seamlessly).
+*   **Cons**:
+    *   Does not support logical boolean operators (like `AND`, `OR`, `NOT`) in the query text.
+    *   Does not support wildcard tokens (`*` or `?`).
+*   **C# Example**:
+    ```csharp
+    q.MultiMatch(mm => mm.Fields(f => f.Field(m => m.Title)).Query(queryText).Fuzziness(Fuzziness.Auto))
+    ```
+
+---
+
+### B. QueryString Query
+*   **Utility**: Designed for power-user search inputs (like GitHub issues search or Jira filters), where users construct query logic directly in the input bar.
+*   **Pros**:
+    *   **High Control**: Supports search syntax commands natively, including wildcards (`paleo*`), exact phrases (`"Jurassic Park"`), AND/OR logic (`dinosaur OR theme-park`), negations (`-cloned`), and numeric ranges (`rating:>8.0`).
+*   **Cons**:
+    *   **Fragile (Can Crash)**: If a user types malformed syntax (such as a single mismatched quote like `Spielberg"`), OpenSearch fails to parse it and returns a `400 Bad Request` exception.
+    *   No automatic fuzziness configuration (users must write `Matrx~1` manually).
+*   **C# Example**:
+    ```csharp
+    q.QueryString(qs => qs.Fields(f => f.Field(m => m.Title)).Query("paleo* AND Spielberg"))
+    ```
+
+---
+
+### C. SimpleQueryString Query
+*   **Utility**: A hybrid that bridges the power of `QueryString` with the safety of `MultiMatch`. It supports basic operators but gracefully discards invalid syntax instead of throwing errors.
+*   **Pros**:
+    *   **Robust**: Never throws syntax errors on bad characters (like unclosed quotes).
+    *   Supports wildcards (`*`), AND (`+`), OR (`|`), and negation (`-`) in the query text.
+*   **Cons**:
+    *   Fuzziness is less customizable.
+    *   Its operators are symbols (`+`, `|`, `-`) rather than standard readable text words (`AND`, `OR`, `NOT`).
+*   **C# Example**:
+    ```csharp
+    q.SimpleQueryString(sqs => sqs.Fields(f => f.Field(m => m.Title)).Query("paleo* + Spielberg"))
+    ```
+
+---
+
+## 16. Relevance Ranking: Understanding Okapi BM25
+
+When you query OpenSearch, it does not just return matches; it ranks them by sorting them descending by a relevance score (`_score`). The default algorithm responsible for calculating this score is **Okapi BM25**.
+
+BM25 is an advanced evolution of the traditional **TF-IDF** (Term Frequency-Inverse Document Frequency) algorithm. It calculates relevance based on three main pillars:
+
+### A. Term Frequency (TF) with Saturation
+*   **The Concept**: The more times a search term appears in a document field, the more relevant that document is.
+*   **The BM25 Advantage (Saturation)**: In older algorithms (like TF-IDF), the score grows linearly as term count increases. If a spammer writes `"shoes shoes shoes..."` 100 times, their document ranks top.
+*   **BM25 Saturation**: BM25 limits this by applying a curve. The first few matches increase the score rapidly, but the score quickly flattens out (saturates). Finding a keyword 10 times vs. 20 times offers almost no score difference.
+
+---
+
+### B. Inverse Document Frequency (IDF)
+*   **The Concept**: How rare is the search term across the **entire index**?
+*   **The Math**:
+    *   If a user searches for `"the dinosaur"`, the word `"the"` appears in almost every document. It is extremely common, so OpenSearch assigns it an IDF score of near `0`.
+    *   The word `"dinosaur"` is rare in the index, so it receives a very high IDF score.
+*   **Result**: The search engine prioritizes matching the rare words, ensuring that search results focus on the meaningful keywords rather than grammar particles.
+
+---
+
+### C. Document Length Normalization
+*   **The Concept**: The length of the text field impacts the term's significance.
+*   **The Rule**: A matching word in a short field is worth more than a matching word in a long field.
+    *   *Example*: If the word `"Alien"` is found in a 1-word Title (`"Alien"`), that movie is almost certainly about aliens.
+    *   If `"alien"` is found once inside a 1000-word Plot description of a romantic comedy, its significance is low.
+*   **Result**: BM25 penalizes matches that appear in longer text fields, favoring short, concise matches.
+
+---
+
+### D. The BM25 Formula Simplified
+
+For each search term, the score contribution is calculated as:
+
+$$\text{Score}(D, Q) = \sum_{i=1}^{n} \text{IDF}(q_i) \cdot \frac{f(q_i, D) \cdot (k_1 + 1)}{f(q_i, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}$$
+
+Where:
+*   $f(q_i, D)$ is the Term Frequency in the document.
+*   $|D| / \text{avgdl}$ is the field length relative to the average field length.
+*   $k_1$ controls the **Term Frequency saturation limit** (defaults to `1.2`).
+*   $b$ controls the **importance of field length normalization** (defaults to `0.75`).
 
 
 
