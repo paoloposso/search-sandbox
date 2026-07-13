@@ -6,31 +6,24 @@ namespace SearchGateway.Services;
 
 public class DatabaseSeeder(AppDbContext dbContext)
 {
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public async Task<SeedingResult> SeedAsync()
     {
         try
         {
-            var currentDir = AppDomain.CurrentDomain.BaseDirectory;
-            string? jsonPath = null;
-            while (!string.IsNullOrEmpty(currentDir))
-            {
-                var testPath = Path.Combine(currentDir, "movies_mock_data.json");
-                if (File.Exists(testPath))
-                {
-                    jsonPath = testPath;
-                    break;
-                }
-                currentDir = Path.GetDirectoryName(currentDir);
-            }
+            var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "movies_mock_data.json");
 
-            if (string.IsNullOrWhiteSpace(jsonPath))
+            if (!File.Exists(jsonPath))
             {
-                return SeedingResult.Failure("Could not find movies_mock_data.json in any parent directory.");
+                return SeedingResult.Failure($"Could not find movies_mock_data.json at: {jsonPath}");
             }
 
             var jsonString = await File.ReadAllTextAsync(jsonPath);
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var rawMovies = JsonSerializer.Deserialize<List<RawMovie>>(jsonString, options);
+            var rawMovies = JsonSerializer.Deserialize<List<RawMovie>>(jsonString, _jsonSerializerOptions);
 
             if (rawMovies is null || rawMovies.Count == 0)
             {

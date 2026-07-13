@@ -86,12 +86,14 @@ public class OpenSearchService(IOpenSearchClient client)
     }
 
     public async Task<ISearchResponse<MovieSearchDocument>> SearchAsync(
-        string? queryText, string? genre, string? searchType = "multi")
+        string? queryText, string? genre, string? searchType = "multi", int page = 1, int pageSize = 10)
     {
         await EnsureIndexExistsAsync();
 
         return await client.SearchAsync<MovieSearchDocument>(s => s
             .Index(IndexName)
+            .From((page - 1) * pageSize)
+            .Size(pageSize)
             .Query(q => q
                 .Bool(b => b
                     .Must(m => 

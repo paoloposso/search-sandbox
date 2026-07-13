@@ -25,7 +25,7 @@ graph TD
 
 ## Workspace Layout
 - `docker-compose.yml`: Local Docker environment containing Postgres, OpenSearch, and OpenSearch Dashboards (Vespa to be added in Phase 3).
-- `movies_mock_data.json`: Pre-constructed mock database containing 1,000 movies with rich metadata.
+- `src/SearchGateway/Data/movies_mock_data.json`: Pre-constructed mock database containing 1,000 movies with rich metadata.
 - `src/SearchGateway/`: C# .NET 10.0 Web API gateway.
 - `docs/concepts_and_mappings.md`: Conceptual explanation of SQL vs Search and detailed index structures.
 - `.agents/`: Project-scoped coding guidelines and customized search engine skill helpers.
@@ -56,7 +56,7 @@ The application will listen on `http://localhost:5042`. On startup, it automatic
 ## Verifying Phase by Phase
 
 ### Phase 1: Relational Foundation (Postgres)
-1. **Seed Postgres**: Trigger data load from `movies_mock_data.json` to Postgres:
+1. **Seed Postgres**: Trigger data load from `src/SearchGateway/Data/movies_mock_data.json` to Postgres:
    ```bash
    curl -i -X POST http://localhost:5042/api/db/seed
    ```

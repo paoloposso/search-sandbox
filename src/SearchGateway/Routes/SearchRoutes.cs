@@ -86,7 +86,7 @@ public static class SearchRoutes
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Query OpenSearch across denormalized properties (Title, Plot, Director, Actors)
-        group.MapGet("/opensearch", async (string? q, string? genre, string? type, OpenSearchService openSearchService) =>
+        group.MapGet("/opensearch", async (string? q, string? genre, string? type, int? page, int? pageSize, OpenSearchService openSearchService) =>
         {
             if (string.IsNullOrWhiteSpace(q) && string.IsNullOrWhiteSpace(genre))
             {
@@ -95,7 +95,9 @@ public static class SearchRoutes
 
             try
             {
-                var searchResponse = await openSearchService.SearchAsync(q, genre, type);
+                var p = page ?? 1;
+                var ps = pageSize ?? 10;
+                var searchResponse = await openSearchService.SearchAsync(q, genre, type, p, ps);
                 if (!searchResponse.IsValid)
                 {
                     return Results.Problem($"Search query failed: {searchResponse.ServerError?.Error?.Reason}");

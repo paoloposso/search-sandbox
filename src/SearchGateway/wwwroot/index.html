@@ -295,6 +295,30 @@
             color: var(--text-secondary);
         }
 
+        .pagination-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .pagination-row span {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .pagination-row .btn {
+            width: auto;
+            min-width: 100px;
+        }
+
         .metrics-bar {
             display: flex;
             gap: 1.5rem;
@@ -562,6 +586,13 @@
                         Enter a search query or select a genre filter to browse movies.
                     </div>
                 </div>
+
+                <!-- Pagination Row -->
+                <div class="pagination-row" id="pagination-controls" style="display: none;">
+                    <button class="btn btn-secondary" id="btn-prev" onclick="changePage(-1)">Previous</button>
+                    <span id="page-info">Page 1 of 1</span>
+                    <button class="btn btn-secondary" id="btn-next" onclick="changePage(1)">Next</button>
+                </div>
             </div>
 
         </div>
@@ -578,6 +609,13 @@
         const searchType = document.getElementById('search-type');
         const genreFilter = document.getElementById('genre-filter');
         const resultsContainer = document.getElementById('results-container');
+        const paginationControls = document.getElementById('pagination-controls');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const pageInfo = document.getElementById('page-info');
+
+        let currentPage = 1;
+        const pageSize = 10;
 
         // Metrics
         const metricTotal = document.getElementById('metric-total');
@@ -604,7 +642,11 @@
             }
         }
 
-        async function runSearch() {
+        async function runSearch(resetPage = true) {
+            if (resetPage) {
+                currentPage = 1;
+            }
+
             const query = searchInput.value.trim();
             const genre = genreFilter.value;
             const type = searchType.value;
@@ -619,10 +661,12 @@
                 metricTotal.innerText = '0';
                 metricTime.innerText = '0 ms';
                 metricScore.innerText = '0.00';
+                paginationControls.style.display = 'none';
                 return;
             }
 
             resultsContainer.innerHTML = `<div class="empty-state">Querying OpenSearch index...</div>`;
+            paginationControls.style.display = 'none';
             const startTime = performance.now();
 
             try {
@@ -630,6 +674,8 @@
                 if (query) params.append('q', query);
                 if (genre) params.append('genre', genre);
                 params.append('type', type);
+                params.append('page', currentPage);
+                params.append('pageSize', pageSize);
 
                 const response = await fetch(`/api/search/opensearch?${params.toString()}`);
                 if (!response.ok) {
@@ -678,6 +724,16 @@
                     }).join('');
 
                     metricScore.innerText = maxScore.toFixed(4);
+
+                    const totalPages = Math.ceil(data.total / pageSize);
+                    if (totalPages > 1) {
+                        paginationControls.style.display = 'flex';
+                        pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
+                        btnPrev.disabled = (currentPage === 1);
+                        btnNext.disabled = (currentPage === totalPages);
+                    } else {
+                        paginationControls.style.display = 'none';
+                    }
                 } else {
                     resultsContainer.innerHTML = `
                         <div class="empty-state">
@@ -685,6 +741,7 @@
                         </div>
                     `;
                     metricScore.innerText = '0.00';
+                    paginationControls.style.display = 'none';
                 }
             } catch (err) {
                 resultsContainer.innerHTML = `
@@ -694,7 +751,14 @@
                 `;
                 metricTotal.innerText = 'Error';
                 metricScore.innerText = '0.00';
+                paginationControls.style.display = 'none';
             }
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            runSearch(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Database seeding and syncing operations
