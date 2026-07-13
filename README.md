@@ -25,7 +25,7 @@ graph TD
 
 ## Workspace Layout
 - `docker-compose.yml`: Local Docker environment containing Postgres, OpenSearch, and OpenSearch Dashboards (Vespa to be added in Phase 3).
-- `movies_mock_data.json`: Pre-constructed mock database containing 30 movies with rich metadata.
+- `movies_mock_data.json`: Pre-constructed mock database containing 1,000 movies with rich metadata.
 - `src/SearchGateway/`: C# .NET 10.0 Web API gateway.
 - `docs/concepts_and_mappings.md`: Conceptual explanation of SQL vs Search and detailed index structures.
 - `.agents/`: Project-scoped coding guidelines and customized search engine skill helpers.

@@ -17,18 +17,44 @@ This skill documents how to structure and query OpenSearch indexes based on fiel
 
 ---
 
-## 2. C# Mapping Mappings
+## 2. C# Mapping Configurations
 
-### Defining properties in C# Index setup:
+### Defining properties in C# Index setup (from `OpenSearchService.cs`):
 ```csharp
 .Map<MovieSearchDocument>(m => m
+    .AutoMap()
     .Properties(p => p
-        // Analyzed Text field (for titles, plots)
+        .Number(n => n
+            .Name(f => f.Id)
+            .Type(NumberType.Integer)
+        )
         .Text(t => t
             .Name(f => f.Title)
             .Analyzer("english")
+            .Fields(fields => fields
+                .Keyword(k => k.Name("keyword"))
+            )
         )
-        // Strict Keyword field (for exact filtering)
+        .Text(t => t
+            .Name(f => f.Plot)
+            .Analyzer("english")
+        )
+        .Text(t => t
+            .Name(f => f.DirectorName)
+            .Analyzer("english")
+        )
+        .Text(t => t
+            .Name(f => f.ActorNames)
+            .Analyzer("english")
+        )
+        .Number(n => n
+            .Name(f => f.ReleaseYear)
+            .Type(NumberType.Integer)
+        )
+        .Number(n => n
+            .Name(f => f.Rating)
+            .Type(NumberType.Double)
+        )
         .Keyword(k => k
             .Name(f => f.Genres)
         )
@@ -40,28 +66,37 @@ This skill documents how to structure and query OpenSearch indexes based on fiel
 
 ## 3. C# Querying Templates
 
-### Querying Analyzed Text:
-Use `Match` or `MultiMatch` queries (supports case-insensitivity, stemming, and fuzziness):
+### A. MultiMatch Query with Field Boosting and Fuzziness:
 ```csharp
-q => q.Match(m => m
-    .Field(f => f.Title)
-    .Query("matrix")
+q.MultiMatch(mm => mm
+    .Fields(f => f
+        .Field(movie => movie.Title, boost: 2.0)
+        .Field(movie => movie.Plot)
+        .Field(movie => movie.DirectorName, boost: 1.5)
+        .Field(movie => movie.ActorNames, boost: 1.5)
+        .Field(movie => movie.Genres, boost: 1.5)
+    )
+    .Query(queryText)
     .Fuzziness(Fuzziness.Auto)
 )
 ```
 
-### Querying Keywords (Strict Filters):
-Use `Term` (or `Terms` for arrays) queries (must match exact characters and casing):
+### B. SimpleQueryString Query:
 ```csharp
-// Single value exact match
-q => q.Term(t => t
-    .Field(f => f.Genres)
-    .Value("Sci-Fi") // Matches "Sci-Fi" exactly. "sci-fi" will fail.
-)
-
-// Array values exact match (OR check)
-q => q.Terms(t => t
-    .Field(f => f.Genres)
-    .Terms(new[] { "Action", "Horror" })
+q.SimpleQueryString(sqs => sqs
+    .Fields(f => f
+        .Field(movie => movie.Title, boost: 2.0)
+        .Field(movie => movie.Plot)
+        .Field(movie => movie.DirectorName, boost: 1.5)
+        .Field(movie => movie.ActorNames, boost: 1.5)
+        .Field(movie => movie.Genres, boost: 1.5)
+    )
+    .Query(queryText)
 )
 ```
+
+### C. Filtering by Keyword (Genre Match):
+```csharp
+q.Term(t => t.Field(m => m.Genres).Value(genre))
+```
+

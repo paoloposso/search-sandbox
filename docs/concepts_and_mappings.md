@@ -262,7 +262,7 @@ BM25 evaluates three core criteria for each field that matches your query:
 
 1.  **Term Frequency (TF)**: How many times does the search term appear in this field for this document?
     *   *More matches = higher score.* (e.g. if a movie plot mentions "sci-fi" 3 times, it gets a higher score than a plot that mentions it once).
-2.  **Inverse Document Frequency (IDF)**: How rare is this search term across the *entire index* (all 30 movies)?
+2.  **Inverse Document Frequency (IDF)**: How rare is this search term across the *entire index* (all 1,000 movies)?
     *   *Rarer words = higher score.* Common words like "the" or "movie" have low IDF. A rare word like "sci" or "Alien" has a very high IDF, meaning matching it is worth many more points.
 3.  **Field Length Normalization**: How long is the field where the match occurred?
     *   *Shorter fields = higher score.* A match in a short title is much more important than a match in a very long plot description, because in a short title, that word represents a larger percentage of the document's topic.
@@ -492,16 +492,16 @@ The **N+1 Problem** occurs when an application executes `1` query to fetch a lis
 
 #### Example of the N+1 Trap:
 ```csharp
-// 1. Executes 1 Query to get all movies (N = 30 movies returned)
+// 1. Executes 1 Query to get all movies (N = 1,000 movies returned)
 var movies = await dbContext.Movies.ToListAsync();
 
-// 2. Loop through each movie to get its director (triggers 30 separate SQL queries!)
+// 2. Loop through each movie to get its director (triggers 1,000 separate SQL queries!)
 foreach (var movie in movies)
 {
     var directorName = movie.Director.Name; // Triggers: SELECT * FROM Directors WHERE Id = @Id
 }
 ```
-*   **Result**: 31 database queries executed! (1 query for movies + 30 queries for directors). This degrades database performance.
+*   **Result**: 1,001 database queries executed! (1 query for movies + 1,000 queries for directors). This degrades database performance.
 *   **Prevention**: By using **Eager Loading** (`.Include(m => m.Director)`), EF Core generates a single SQL query with an `INNER JOIN` or `LEFT JOIN`, returning all data in **1 single database roundtrip**.
 
 ---
