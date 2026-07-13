@@ -7,7 +7,7 @@ Check readme for the list of endpoints to avoid reading all code every time.
 
 ## IMPORTANT
 Always execute the following steps before starting:
-1. Git status to check for any uncommited changes.
+1. When asked to change code, execute git status to check for any uncommited changes.
 2. If there are uncommited changes, I will instruct you on what to do.
 3. Check if the code compile and the tests are passing (if applicable).
 4. If something is wrong, fix it.
