@@ -22,7 +22,13 @@ var connectionSettings = new ConnectionSettings(new Uri(openSearchUrl))
 
 builder.Services.AddSingleton<IOpenSearchClient>(new OpenSearchClient(connectionSettings));
 builder.Services.AddSingleton<OpenSearchService>();
+builder.Services.AddHttpClient<VespaService>(client =>
+{
+    var url = builder.Configuration.GetValue<string>("Vespa:Url") ?? "http://localhost:8080/";
+    client.BaseAddress = new Uri(url);
+});
 builder.Services.AddScoped<DatabaseSeeder>();
+
 
 var app = builder.Build();
 

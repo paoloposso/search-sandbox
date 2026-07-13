@@ -12,3 +12,7 @@ Always execute the following steps before starting:
 3. Check if the code compile and the tests are passing (if applicable).
 4. If something is wrong, fix it.
 5. Always update the documents as the code evolves.
+
+## ARCHITECTURAL & BEST PRACTICE DECISIONS
+- **External Configuration**: Never hardcode external service URLs/ports (e.g., Vespa, OpenSearch) in C# code. Always declare them in `appsettings.json` and configure `BaseAddress` on typed HTTP Client registrations in `Program.cs`.
+- **Logical Segregation**: For lightweight sandboxes and POCs, maintain a single-project structure to avoid project boilerplate. Separate concerns logically inside folders (`Routes/`, `Services/` acting as the lightweight infrastructure layer, and `Models/` for schemas). Moving to separate physical projects (Clean Architecture) should only occur when transitioning to production microservices.

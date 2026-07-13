@@ -54,7 +54,20 @@ services:
       opensearch:
         condition: service_healthy
 
+  vespa:
+    image: vespaengine/vespa:8
+    container_name: movies-vespa
+    ports:
+      - "8080:8080"
+      - "19071:19071"
+    environment:
+      - VESPA_CONFIGSERVER_JVMOPTS=-Xms512m -Xmx512m
+    volumes:
+      - vespa_data:/opt/vespa/var
+
 volumes:
   postgres_data:
   opensearch_data:
+  vespa_data:
+
 

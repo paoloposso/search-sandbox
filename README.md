@@ -75,3 +75,56 @@ The application will listen on `http://localhost:5042`. On startup, it automatic
    curl -i "http://localhost:5042/api/search/opensearch?q=cyberpunk"
    ```
 3. **OpenSearch Dashboards**: Open `http://localhost:5601` in your browser to run Dev Tools console queries on the `movies` index.
+
+### Phase 3: Vespa Integration
+1. **Start Vespa**: Run the Vespa container (already defined in `docker-compose.yml`):
+   ```bash
+   docker compose up -d vespa
+   ```
+2. **Deploy Configuration**: Run the packaging and deployment script:
+   ```bash
+   bash .agents/skills/vespa-integration/scripts/deploy.sh
+   ```
+3. **Verify Search API**: Query Vespa to make sure the schema is active (returns 0 results because it is not seeded yet):
+   ```bash
+   curl -s "http://localhost:8080/search/?yql=select+*+from+movie+where+true"
+   ```
+4. **Sync Postgres to Vespa**: Seed the Vespa content index from the C# gateway:
+   ```bash
+   curl -i -X POST http://localhost:5042/api/search/vespa/sync
+   ```
+5. **Search Vespa via Gateway**: Execute a query against the C# Vespa endpoint:
+   ```bash
+   curl -i "http://localhost:5042/api/search/vespa?q=cyberpunk"
+   ```
+6. **Compare Search Engines**: Benchmark OpenSearch and Vespa side-by-side:
+   ```bash
+   curl -i "http://localhost:5042/api/search/compare?q=cyberpunk"
+   ```
+
+### Vespa CLI & YQL Examples
+You can execute YQL queries directly inside the running Docker container using the pre-installed Vespa CLI:
+
+* **Filter by rating** (Numeric filter):
+  ```bash
+  docker exec movies-vespa vespa query 'select * from movie where rating > 9.0'
+  ```
+* **Filter by genre** (Array check):
+  ```bash
+  docker exec movies-vespa vespa query 'select * from movie where genres contains "Sci-Fi"'
+  ```
+* **Logical AND (90s Sci-Fi)**:
+  ```bash
+  docker exec movies-vespa vespa query 'select * from movie where genres contains "Sci-Fi" and release_year >= 1990 and release_year <= 1999'
+  ```
+* **Sort and limit**:
+  ```bash
+  docker exec movies-vespa vespa query 'select * from movie where true order by rating desc limit 3'
+  ```
+* **Multi-Match Search** (Combine text search with structured filters):
+  ```bash
+  docker exec movies-vespa vespa query "yql=select * from movie where userQuery() and genres contains 'Sci-Fi'" "query=hacker"
+  ```
+
+
+

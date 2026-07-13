@@ -1,0 +1,43 @@
+schema movie {
+    document movie {
+        field id type int {
+            indexing: summary | attribute
+        }
+        field title type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field plot type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field release_year type int {
+            indexing: summary | attribute
+        }
+        field rating type double {
+            indexing: summary | attribute
+        }
+        field director_name type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field genres type array<string> {
+            indexing: summary | attribute
+            attribute: fast-search
+        }
+        field actor_names type array<string> {
+            indexing: summary | index
+            index: enable-bm25
+        }
+    }
+
+    fieldset default {
+        fields: title, plot, director_name, actor_names
+    }
+
+    rank-profile movie_rank inherits default {
+        first-phase {
+            expression: attribute(rating) * 0.3 + bm25(title) * 0.4 + bm25(plot) * 0.3
+        }
+    }
+}

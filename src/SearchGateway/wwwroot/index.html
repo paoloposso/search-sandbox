@@ -504,6 +504,7 @@
             <div class="header-actions">
                 <button class="btn btn-secondary" onclick="seedDatabase()" id="btn-seed">Seed Postgres</button>
                 <button class="btn btn-primary" onclick="syncOpenSearch()" id="btn-sync">Sync OpenSearch</button>
+                <button class="btn btn-primary" onclick="syncVespa()" id="btn-sync-vespa" style="background: linear-gradient(135deg, #9d4edd 0%, #7b2cbf 100%); box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);">Sync Vespa</button>
             </div>
         </header>
 
@@ -514,6 +515,16 @@
             <div class="control-panel">
                 <div class="glass-card">
                     <h2>Query Parameters</h2>
+
+                    <!-- Search Engine Target Selection -->
+                    <div class="form-group">
+                        <label for="engine-type">Search Engine Target</label>
+                        <select id="engine-type" class="form-select" onchange="runSearch()">
+                            <option value="opensearch">OpenSearch Only</option>
+                            <option value="vespa">Vespa Only</option>
+                            <option value="compare">Compare (Side-by-Side)</option>
+                        </select>
+                    </div>
 
                     <!-- Search Type Selection -->
                     <div class="form-group">
@@ -549,12 +560,15 @@
 
                 <!-- Syntax Help -->
                 <div class="syntax-cheatsheet" id="syntax-help">
-                    <div class="syntax-title">SimpleQueryString DQL syntax:</div>
-                    • Use <b>*</b> for wildcard prefix: <code>paleo*</code><br>
-                    • Use <b>+</b> for AND matching: <code>dinosaur + island</code><br>
-                    • Use <b>|</b> for OR matching: <code>dinosaur | space</code><br>
-                    • Use <b>-</b> to exclude terms: <code>dinosaur -island</code><br>
-                    • Use <b>( )</b> to group: <code>(dinosaur + island) | alien</code>
+                    <div class="syntax-title" style="color: var(--neon-blue);">OpenSearch DQL (Simple Query Mode):</div>
+                    • Use <b>*</b> for wildcard: <code>paleo*</code><br>
+                    • Use <b>+</b> for AND: <code>dinosaur + island</code><br>
+                    • Use <b>|</b> for OR: <code>dinosaur | space</code><br>
+                    • Use <b>-</b> to exclude: <code>dinosaur -island</code><br>
+                    <div class="syntax-title" style="color: var(--neon-purple); margin-top: 0.5rem;">Vespa search operators:</div>
+                    • Use <b>*</b> for wildcard: <code>paleo*</code><br>
+                    • Use <b>-</b> to exclude: <code>dinosaur -island</code><br>
+                    • Use <b>" "</b> for phrases: <code>"Jurassic Park"</code>
                 </div>
             </div>
 
@@ -650,6 +664,7 @@
             const query = searchInput.value.trim();
             const genre = genreFilter.value;
             const type = searchType.value;
+            const engine = document.getElementById('engine-type').value;
 
             // Make sure we have at least query or genre filter
             if (!query && !genre) {
@@ -665,7 +680,7 @@
                 return;
             }
 
-            resultsContainer.innerHTML = `<div class="empty-state">Querying OpenSearch index...</div>`;
+            resultsContainer.innerHTML = `<div class="empty-state">Querying ${engine === 'compare' ? 'both search engines' : engine === 'vespa' ? 'Vespa index' : 'OpenSearch index'}...</div>`;
             paginationControls.style.display = 'none';
             const startTime = performance.now();
 
@@ -677,71 +692,81 @@
                 params.append('page', currentPage);
                 params.append('pageSize', pageSize);
 
-                const response = await fetch(`/api/search/opensearch?${params.toString()}`);
-                if (!response.ok) {
-                    const errText = await response.text();
-                    throw new Error(errText || `Server error: ${response.status}`);
-                }
+                if (engine === 'compare') {
+                    const response = await fetch(`/api/search/compare?${params.toString()}`);
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(errText || `Server error: ${response.status}`);
+                    }
 
-                const data = await response.json();
-                const latency = Math.round(performance.now() - startTime);
+                    const data = await response.json();
+                    const totalLatency = Math.round(performance.now() - startTime);
 
-                metricTime.innerText = `${latency} ms`;
-                metricTotal.innerText = data.total;
-
-                if (data.results && data.results.length > 0) {
-                    let maxScore = 0;
-                    resultsContainer.innerHTML = data.results.map(movie => {
-                        if (movie.score > maxScore) maxScore = movie.score;
-
-                        const isConstantScore = movie.score === 1;
-                        const scoreClass = isConstantScore ? 'score-badge score-wildcard' : 'score-badge';
-                        const scoreDisplay = movie.score ? movie.score.toFixed(4) : 'N/A';
-
-                        return `
-                            <div class="movie-card">
-                                <div class="card-header">
-                                    <div class="movie-title">${escapeHtml(movie.title)}</div>
-                                    <span class="${scoreClass}">Score: ${scoreDisplay}</span>
-                                </div>
-                                <div class="movie-meta">
-                                    <span class="meta-rating">★ ${movie.rating.toFixed(1)}</span>
-                                    <span>${movie.release_year}</span>
-                                    <span>•</span>
-                                    <span>${escapeHtml(movie.director_name)}</span>
-                                </div>
-                                <div class="movie-plot">
-                                    ${escapeHtml(movie.plot)}
-                                </div>
-                                <div class="genre-tags">
-                                    ${movie.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('')}
-                                </div>
-                                <div class="cast-list">
-                                    <span class="cast-label">Cast: </span>${escapeHtml(movie.actor_names.join(', '))}
+                    metricTime.innerText = `${totalLatency} ms (total loop)`;
+                    metricTotal.innerText = `OS: ${data.openSearch.total} | Vespa: ${data.vespa.total}`;
+                    
+                    // Render comparison side-by-side
+                    resultsContainer.innerHTML = `
+                        <div class="compare-container" style="display: flex; gap: 1.5rem; width: 100%; grid-column: 1 / -1;">
+                            <!-- OpenSearch Column -->
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 0;">
+                                <h3 style="border-bottom: 2px solid var(--neon-blue); padding-bottom: 0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 1.1rem; align-items: center;">
+                                    <span>OpenSearch</span>
+                                    <span style="color: var(--neon-green); font-size: 0.9rem; font-weight: normal;">${data.openSearch.latencyMs} ms</span>
+                                </h3>
+                                <div class="results-grid" style="grid-template-columns: 1fr; margin-top: 0; width: 100%;">
+                                    ${renderMovieCardsHtml(data.openSearch.results)}
                                 </div>
                             </div>
-                        `;
-                    }).join('');
-
-                    metricScore.innerText = maxScore.toFixed(4);
-
-                    const totalPages = Math.ceil(data.total / pageSize);
-                    if (totalPages > 1) {
-                        paginationControls.style.display = 'flex';
-                        pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
-                        btnPrev.disabled = (currentPage === 1);
-                        btnNext.disabled = (currentPage === totalPages);
-                    } else {
-                        paginationControls.style.display = 'none';
-                    }
-                } else {
-                    resultsContainer.innerHTML = `
-                        <div class="empty-state">
-                            No movies matched your search criteria. Try a different query.
+                            <!-- Vespa Column -->
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 0;">
+                                <h3 style="border-bottom: 2px solid var(--neon-purple); padding-bottom: 0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 1.1rem; align-items: center;">
+                                    <span>Vespa</span>
+                                    <span style="color: var(--neon-green); font-size: 0.9rem; font-weight: normal;">${data.vespa.latencyMs} ms</span>
+                                </h3>
+                                <div class="results-grid" style="grid-template-columns: 1fr; margin-top: 0; width: 100%;">
+                                    ${renderMovieCardsHtml(data.vespa.results)}
+                                </div>
+                            </div>
                         </div>
                     `;
-                    metricScore.innerText = '0.00';
-                    paginationControls.style.display = 'none';
+
+                    // Calculate max score for display
+                    let maxScore = 0;
+                    if (data.openSearch.results) data.openSearch.results.forEach(m => { if (m.score > maxScore) maxScore = m.score; });
+                    if (data.vespa.results) data.vespa.results.forEach(m => { if (m.score > maxScore) maxScore = m.score; });
+                    metricScore.innerText = maxScore.toFixed(4);
+
+                    const maxTotal = Math.max(data.openSearch.total, data.vespa.total);
+                    setupPagination(maxTotal);
+                } else {
+                    const url = engine === 'vespa' ? '/api/search/vespa' : '/api/search/opensearch';
+                    const response = await fetch(`${url}?${params.toString()}`);
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(errText || `Server error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const latency = Math.round(performance.now() - startTime);
+
+                    metricTime.innerText = `${latency} ms`;
+                    metricTotal.innerText = data.total;
+
+                    if (data.results && data.results.length > 0) {
+                        resultsContainer.innerHTML = renderMovieCardsHtml(data.results);
+                        let maxScore = 0;
+                        data.results.forEach(m => { if (m.score > maxScore) maxScore = m.score; });
+                        metricScore.innerText = maxScore.toFixed(4);
+                        setupPagination(data.total);
+                    } else {
+                        resultsContainer.innerHTML = `
+                            <div class="empty-state">
+                                No movies matched your search criteria. Try a different query.
+                            </div>
+                        `;
+                        metricScore.innerText = '0.00';
+                    }
                 }
             } catch (err) {
                 resultsContainer.innerHTML = `
@@ -751,6 +776,53 @@
                 `;
                 metricTotal.innerText = 'Error';
                 metricScore.innerText = '0.00';
+                paginationControls.style.display = 'none';
+            }
+        }
+
+        function renderMovieCardsHtml(results) {
+            if (!results || results.length === 0) {
+                return `<div class="empty-state" style="padding: 2rem 1rem;">No results found.</div>`;
+            }
+            return results.map(movie => {
+                const isConstantScore = movie.score === 1;
+                const scoreClass = isConstantScore ? 'score-badge score-wildcard' : 'score-badge';
+                const scoreDisplay = movie.score ? movie.score.toFixed(4) : 'N/A';
+
+                return `
+                    <div class="movie-card">
+                        <div class="card-header">
+                            <div class="movie-title">${escapeHtml(movie.title)}</div>
+                            <span class="${scoreClass}">Score: ${scoreDisplay}</span>
+                        </div>
+                        <div class="movie-meta">
+                            <span class="meta-rating">★ ${movie.rating.toFixed(1)}</span>
+                            <span>${movie.release_year}</span>
+                            <span>•</span>
+                            <span>${escapeHtml(movie.director_name)}</span>
+                        </div>
+                        <div class="movie-plot">
+                            ${escapeHtml(movie.plot)}
+                        </div>
+                        <div class="genre-tags">
+                            ${movie.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('')}
+                        </div>
+                        <div class="cast-list">
+                            <span class="cast-label">Cast: </span>${escapeHtml(movie.actor_names.join(', '))}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setupPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / pageSize);
+            if (totalPages > 1) {
+                paginationControls.style.display = 'flex';
+                pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
+                btnPrev.disabled = (currentPage === 1);
+                btnNext.disabled = (currentPage === totalPages);
+            } else {
                 paginationControls.style.display = 'none';
             }
         }
@@ -810,8 +882,33 @@
             }
         }
 
+        async function syncVespa() {
+            const btn = document.getElementById('btn-sync-vespa');
+            const oldText = btn.innerText;
+            btn.innerText = 'Syncing...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/search/vespa/sync', { method: 'POST' });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast(data.message || 'Vespa index synced successfully!', 'success');
+                    // Automatically run search if input has value to refresh list
+                    if (searchInput.value || genreFilter.value) runSearch();
+                } else {
+                    throw new Error(data.message || 'Failed to sync Vespa.');
+                }
+            } catch (err) {
+                showToast(`Vespa sync failed: ${err.message}`, 'error');
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+        }
+
         async function clearDatabase() {
-            if (!confirm('Are you sure you want to delete all rows from the database and wipe the OpenSearch movies index?')) {
+            if (!confirm('Are you sure you want to delete all rows from the database and wipe both OpenSearch and Vespa indexes?')) {
                 return;
             }
 
@@ -825,11 +922,14 @@
                 // 2. Wipe OpenSearch movies index cleanly
                 const osClearResponse = await fetch('/api/search/opensearch/clear', { method: 'DELETE' });
 
-                if (dbClearResponse.ok && osClearResponse.ok) {
-                    showToast('PostgreSQL tables cleared and OpenSearch index emptied!', 'success');
+                // 3. Wipe Vespa documents cleanly
+                const vespaClearResponse = await fetch('/api/search/vespa/clear', { method: 'DELETE' });
+
+                if (dbClearResponse.ok && osClearResponse.ok && vespaClearResponse.ok) {
+                    showToast('PostgreSQL tables cleared and search indexes emptied!', 'success');
                     resultsContainer.innerHTML = `
                         <div class="empty-state">
-                            Normalized database and search index cleared. Please run seeding to repopulate.
+                            Normalized database and search indexes cleared. Please run seeding to repopulate.
                         </div>
                     `;
                     searchInput.value = '';
