@@ -102,6 +102,34 @@ The application will listen on `http://localhost:5042`. On startup, it automatic
    curl -i "http://localhost:5042/api/search/compare?q=cyberpunk"
    ```
 
+### Updating and Deploying Vespa Schemas (Local Only)
+
+The Vespa schema and clustering configurations are located in the [vespa/](file:///Users/paoloposso/git/vespa-opensearch-poc/vespa/) directory:
+- [vespa/schemas/movie.sd](file:///Users/paoloposso/git/vespa-opensearch-poc/vespa/schemas/movie.sd): Defines the fields, indexes, and rank profiles for movies.
+- [vespa/services.xml](file:///Users/paoloposso/git/vespa-opensearch-poc/vespa/services.xml): Configures container services and the content search cluster.
+
+This deployment is **strictly local** and targets the Vespa Config Server running in Docker at `http://localhost:19071`.
+
+#### How to Deploy Schema Changes:
+Whenever you edit or add a schema, you must redeploy the configuration package. You can do this in two ways:
+
+1. **Via the Deploy Script (Recommended)**:
+   ```bash
+   bash .agents/skills/vespa-integration/scripts/deploy.sh
+   ```
+
+2. **Via Manual Command Line**:
+   From the project root directory, run:
+   ```bash
+   cd vespa && zip -r ../application.zip services.xml schemas/ && cd .. && curl --header "Content-Type: application/zip" --data-binary @application.zip http://localhost:19071/application/v2/tenant/default/prepareandactivate && rm application.zip
+   ```
+
+#### Clearing Vespa Data:
+If you need to clear the Vespa search engine data, you can trigger:
+```bash
+curl -i -X DELETE http://localhost:5042/api/search/vespa/clear
+```
+
 ### Vespa CLI & YQL Examples
 You can execute YQL queries directly inside the running Docker container using the pre-installed Vespa CLI:
 

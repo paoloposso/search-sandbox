@@ -201,7 +201,7 @@ public static class SearchRoutes
             {
                 var p = page ?? 1;
                 var ps = pageSize ?? 10;
-                var searchResponse = await vespaService.SearchAsync(q, genre, p, ps);
+                var searchResponse = await vespaService.SearchAsync(q, genre, type, p, ps);
                 if (searchResponse == null)
                 {
                     return Results.Problem("No response from Vespa search service.");
@@ -255,7 +255,7 @@ public static class SearchRoutes
 
                 // Query Vespa and measure latency
                 var vespaStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                var vespaTask = vespaService.SearchAsync(q, genre, p, ps);
+                var vespaTask = vespaService.SearchAsync(q, genre, type, p, ps);
 
                 await Task.WhenAll(osTask, vespaTask);
 
@@ -296,7 +296,7 @@ public static class SearchRoutes
                     DirectorName = child.Fields.DirectorName,
                     Genres = child.Fields.Genres,
                     ActorNames = child.Fields.ActorNames
-                }) ?? Enumerable.Empty<MovieSearchResultItem>();
+                }) ?? [];
 
                 var vespaResultPayload = new CompareSearchEngineResult
                 {
