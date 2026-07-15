@@ -13,7 +13,7 @@ func main() {
 
 	connStr := os.Getenv("DB_CONNECTION_STRING")
 	if connStr == "" {
-		connStr = "Host=localhost;Database=movies_db;Username=postgres;Password=postgres_password;sslmode=disable"
+		connStr = "host=localhost dbname=movies_db user=postgres password=postgres_password sslmode=disable"
 	}
 
 	openSearchUrl := os.Getenv("OPENSEARCH_URL")

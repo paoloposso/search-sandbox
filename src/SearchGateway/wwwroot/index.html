@@ -796,19 +796,19 @@
                             <span class="${scoreClass}">Score: ${scoreDisplay}</span>
                         </div>
                         <div class="movie-meta">
-                            <span class="meta-rating">★ ${movie.rating.toFixed(1)}</span>
+                            <span class="meta-rating">★ ${movie.rating ? movie.rating.toFixed(1) : 'N/A'}</span>
                             <span>${movie.release_year}</span>
                             <span>•</span>
-                            <span>${escapeHtml(movie.director_name)}</span>
+                            <span>${movie.director_name ? escapeHtml(movie.director_name) : 'N/A'}</span>
                         </div>
                         <div class="movie-plot">
-                            ${escapeHtml(movie.plot)}
+                            ${movie.plot ? escapeHtml(movie.plot) : ''}
                         </div>
                         <div class="genre-tags">
-                            ${movie.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('')}
+                            ${movie.genres && Array.isArray(movie.genres) ? movie.genres.map(g => `<span class="genre-tag">${escapeHtml(g)}</span>`).join('') : ''}
                         </div>
                         <div class="cast-list">
-                            <span class="cast-label">Cast: </span>${escapeHtml(movie.actor_names.join(', '))}
+                            <span class="cast-label">Cast: </span>${movie.actor_names && Array.isArray(movie.actor_names) ? escapeHtml(movie.actor_names.join(', ')) : 'N/A'}
                         </div>
                     </div>
                 `;

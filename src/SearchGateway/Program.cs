@@ -69,7 +69,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Map endpoints using Extension Methods
-app.MapDatabaseEndpoints();
+app.MapMovieEndpoints();
+app.MapAdminEndpoints();
 app.MapSearchEndpoints();
 
 app.Run();
